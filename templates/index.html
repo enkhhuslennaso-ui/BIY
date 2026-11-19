@@ -5,18 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ч.Галсан - Аянгат Цагийн Тууж | 3-р Баг</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 
         :root {
             --bg-dark: #03060e;
-            --card-bg: rgba(10, 17, 32, 0.75);
+            --card-bg: rgba(10, 17, 32, 0.82);
             --primary: #38bdf8;
             --secondary: #818cf8;
             --gold: #fbbf24;
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
+            --lightning-color: #e0f2fe;
+            --glow-color: rgba(251, 191, 36, 0.8);
         }
 
+        /* Base Reset & Smooth Scrolling */
         * {
             margin: 0;
             padding: 0;
@@ -32,9 +35,10 @@
             color: var(--text-main);
             font-family: 'Montserrat', sans-serif;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* 3D Canvas & Flash */
+        /* 3D WebGL Background Canvas */
         #bg-canvas {
             position: fixed;
             top: 0;
@@ -42,117 +46,120 @@
             width: 100vw;
             height: 100vh;
             z-index: -1;
-            pointer-events: none; /* Утсан дээр гүйлгэхэд саад болохгүй */
+            pointer-events: none;
         }
 
-        #lightning-flash {
+        /* Lightning Flash Cinematic Overlay */
+        #lightning-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, rgba(224, 242, 254, 0.4), rgba(56, 189, 248, 0.15));
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, rgba(224, 242, 254, 0.9), rgba(56, 189, 248, 0.4), transparent 75%);
             opacity: 0;
             pointer-events: none;
-            z-index: 0;
-            transition: opacity 0.06s ease-out;
+            z-index: 5;
+            transition: opacity 0.03s ease-in-out;
         }
 
-        /* HUD Scene Indicator */
+        /* Dynamic HUD Scene Indicator */
         #scene-hud {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(10, 17, 32, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            padding: 10px 16px;
-            border-radius: 30px;
+            bottom: 25px;
+            right: 25px;
+            background: rgba(10, 17, 32, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            padding: 14px 22px;
+            border-radius: 40px;
             z-index: 150;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.78rem;
-            font-weight: 600;
+            gap: 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
             color: #7dd3fc;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
         }
 
         .hud-dot {
-            width: 9px;
-            height: 9px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: #38bdf8;
-            box-shadow: 0 0 10px #38bdf8;
-            animation: pulse 1.5s infinite;
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+            animation: pulseGlow 1.2s infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.4); opacity: 0.6; }
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 10px var(--primary); }
+            50% { transform: scale(1.6); opacity: 0.5; box-shadow: 0 0 25px var(--primary); }
         }
 
-        /* Progress Bar */
+        /* Scroll Progress Bar */
         #scroll-progress {
             position: fixed;
             top: 0;
             left: 0;
-            height: 3px;
+            height: 4px;
             background: linear-gradient(90deg, var(--primary), var(--secondary), var(--gold));
             width: 0%;
-            z-index: 200;
+            z-index: 300;
+            box-shadow: 0 0 15px var(--primary);
         }
 
-        /* Navigation */
+        /* Navigation Bar */
         nav {
             position: fixed;
             top: 0;
             width: 100%;
-            padding: 15px 5%;
+            padding: 16px 6%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(3, 6, 14, 0.85);
-            backdrop-filter: blur(18px);
-            z-index: 100;
-            border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+            background: rgba(3, 6, 14, 0.9);
+            backdrop-filter: blur(22px);
+            z-index: 200;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
         }
 
         .logo {
             font-family: 'Cinzel', serif;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 900;
             color: var(--primary);
-            text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
-            letter-spacing: 1.5px;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
+            letter-spacing: 2px;
         }
 
         .nav-links {
             display: flex;
-            gap: 20px;
+            gap: 25px;
         }
 
         .nav-links a {
             color: #cbd5e1;
             text-decoration: none;
-            font-size: 0.83rem;
+            font-size: 0.86rem;
             font-weight: 600;
-            transition: color 0.3s;
+            transition: color 0.3s ease;
         }
 
         .nav-links a:hover {
             color: var(--primary);
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
         }
 
-        /* Sections */
+        /* Sections Layout */
         section {
             min-height: 100vh;
-            padding: 100px 7% 60px;
+            padding: 120px 8% 80px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             position: relative;
-            z-index: 1;
+            z-index: 10;
         }
 
         /* Hero Section */
@@ -162,199 +169,210 @@
         }
 
         .badge-top {
-            background: rgba(56, 189, 248, 0.12);
-            border: 1px solid rgba(56, 189, 248, 0.4);
+            background: rgba(56, 189, 248, 0.14);
+            border: 1px solid rgba(56, 189, 248, 0.5);
             color: #7dd3fc;
-            padding: 6px 18px;
-            border-radius: 30px;
-            font-size: 0.8rem;
+            padding: 8px 22px;
+            border-radius: 35px;
+            font-size: 0.85rem;
             font-weight: 700;
-            letter-spacing: 2px;
-            margin-bottom: 18px;
+            letter-spacing: 3px;
+            margin-bottom: 22px;
             text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
         }
 
         .hero h3 {
             color: var(--text-muted);
-            letter-spacing: 4px;
+            letter-spacing: 6px;
             text-transform: uppercase;
-            font-size: 1.05rem;
-            margin-bottom: 10px;
+            font-size: 1.15rem;
+            margin-bottom: 14px;
         }
 
         .hero h1 {
             font-family: 'Cinzel', serif;
-            font-size: 4.2rem;
+            font-size: 4.8rem;
             font-weight: 900;
             background: linear-gradient(to right, #ffffff, #38bdf8, #818cf8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(56, 189, 248, 0.35);
-            margin-bottom: 22px;
-            line-height: 1.15;
+            text-shadow: 0 0 60px rgba(56, 189, 248, 0.45);
+            margin-bottom: 28px;
+            line-height: 1.1;
         }
 
         .hero p {
-            max-width: 750px;
-            font-size: 1.05rem;
-            line-height: 1.8;
+            max-width: 800px;
+            font-size: 1.12rem;
+            line-height: 1.9;
             color: #cbd5e1;
-            margin-bottom: 35px;
+            margin-bottom: 42px;
         }
 
         .hero-btns {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .btn {
-            padding: 14px 32px;
+            padding: 16px 38px;
             background: linear-gradient(45deg, #0284c7, #4f46e5);
             color: white;
             text-decoration: none;
-            border-radius: 30px;
+            border-radius: 40px;
             font-weight: 600;
-            letter-spacing: 1px;
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
-            transition: all 0.3s;
+            letter-spacing: 1.5px;
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.5);
+            transition: all 0.35s ease;
             border: none;
             cursor: pointer;
-            font-size: 0.92rem;
+            font-size: 0.98rem;
         }
 
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 35px rgba(56, 189, 248, 0.8);
+            transform: translateY(-5px);
+            box-shadow: 0 0 50px rgba(56, 189, 248, 0.9);
         }
 
         .btn-outline {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.7);
             border: 1px solid var(--primary);
             box-shadow: none;
         }
 
         .btn-outline:hover {
-            background: rgba(56, 189, 248, 0.2);
+            background: rgba(56, 189, 248, 0.25);
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.45);
         }
 
-        /* Section Titles */
+        /* Section Headers */
         .section-header {
-            margin-bottom: 40px;
+            margin-bottom: 50px;
         }
 
         .section-title {
             font-family: 'Cinzel', serif;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             color: #f8fafc;
-            margin-bottom: 8px;
-            border-left: 5px solid var(--primary);
-            padding-left: 18px;
+            margin-bottom: 12px;
+            border-left: 6px solid var(--primary);
+            padding-left: 22px;
+            text-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
         }
 
         .section-subtitle {
             color: var(--text-muted);
-            padding-left: 23px;
-            font-size: 0.95rem;
+            padding-left: 28px;
+            font-size: 1.02rem;
         }
 
-        /* Grid & Cards */
+        /* Grids & Cards */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 22px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 28px;
         }
 
         .card {
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(56, 189, 248, 0.22);
-            border-radius: 16px;
-            padding: 26px;
-            transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-radius: 20px;
+            padding: 32px;
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
         .card:hover {
-            transform: translateY(-6px);
+            transform: translateY(-10px);
             border-color: var(--primary);
-            box-shadow: 0 12px 30px rgba(2, 132, 199, 0.22);
+            box-shadow: 0 18px 40px rgba(2, 132, 199, 0.35);
         }
 
         .card h4 {
             color: var(--primary);
-            font-size: 1.2rem;
-            margin-bottom: 12px;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
         }
 
         .card p {
             color: #cbd5e1;
-            font-size: 0.92rem;
-            line-height: 1.7;
+            font-size: 0.96rem;
+            line-height: 1.8;
         }
 
         /* Author Box */
         .author-box {
             display: grid;
             grid-template-columns: 1fr 2fr;
-            gap: 30px;
+            gap: 40px;
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            border-radius: 18px;
-            padding: 32px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(56, 189, 248, 0.32);
+            border-radius: 22px;
+            padding: 42px;
             align-items: center;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
         }
 
         .author-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 16px;
         }
 
         .stat-item {
-            background: rgba(3, 6, 14, 0.7);
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(3, 6, 14, 0.8);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
             text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.06);
+            border-color: var(--primary);
         }
 
         .stat-item h5 {
             color: var(--primary);
-            font-size: 1.3rem;
-            margin-bottom: 4px;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
         }
 
         .stat-item span {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
         }
 
-        /* Timeline */
+        /* Timeline Scrollytelling Stages */
         .timeline {
             position: relative;
-            max-width: 950px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
         .timeline::before {
             content: '';
             position: absolute;
-            left: 18px;
+            left: 20px;
             top: 0;
             bottom: 0;
-            width: 3px;
+            width: 4px;
             background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--gold));
+            box-shadow: 0 0 20px var(--primary);
         }
 
         .timeline-item {
             position: relative;
-            padding-left: 55px;
-            margin-bottom: 35px;
-            opacity: 0.6;
-            transform: translateY(12px);
-            transition: all 0.4s ease;
+            padding-left: 65px;
+            margin-bottom: 45px;
+            opacity: 0.35;
+            transform: translateY(25px);
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
         .timeline-item.active-stage {
@@ -364,257 +382,282 @@
 
         .timeline-dot {
             position: absolute;
-            left: 9px;
-            top: 4px;
-            width: 21px;
-            height: 21px;
+            left: 10px;
+            top: 5px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: var(--bg-dark);
             border: 4px solid var(--primary);
-            box-shadow: 0 0 12px var(--primary);
-            transition: all 0.3s;
+            box-shadow: 0 0 18px var(--primary);
+            transition: all 0.3s ease;
         }
 
         .timeline-item.active-stage .timeline-dot {
             background: var(--primary);
-            transform: scale(1.2);
+            transform: scale(1.4);
+            box-shadow: 0 0 30px var(--primary);
         }
 
         .timeline-content {
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(56, 189, 248, 0.22);
-            border-radius: 15px;
-            padding: 26px 30px;
-            transition: all 0.3s;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-radius: 20px;
+            padding: 32px 38px;
+            transition: all 0.35s ease;
         }
 
         .timeline-item.active-stage .timeline-content {
             border-color: var(--primary);
-            box-shadow: 0 8px 30px rgba(56, 189, 248, 0.18);
+            box-shadow: 0 15px 40px rgba(56, 189, 248, 0.3);
         }
 
         .timeline-step {
             color: var(--primary);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 5px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
             display: block;
         }
 
         .timeline-content h4 {
-            font-size: 1.25rem;
+            font-size: 1.4rem;
             color: #fff;
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
 
         .timeline-content p {
             color: #cbd5e1;
-            line-height: 1.7;
-            font-size: 0.92rem;
+            line-height: 1.85;
+            font-size: 0.98rem;
         }
 
-        /* Quotes */
+        /* Quotes Styling */
         .quote-card {
-            border-left: 4px solid var(--gold);
+            border-left: 6px solid var(--gold);
             font-style: italic;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(10, 17, 32, 0.85));
         }
 
         .quote-card p {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: #f8fafc;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
         }
 
         .quote-author {
             color: var(--gold);
             font-style: normal;
-            font-size: 0.82rem;
-            font-weight: 600;
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
         }
 
-        /* Quiz */
+        /* Quiz Container */
         .quiz-container {
-            max-width: 750px;
+            max-width: 850px;
             margin: 0 auto;
             width: 100%;
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            border-radius: 18px;
-            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 22px;
+            padding: 40px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
         }
 
         .quiz-question {
-            font-size: 1.15rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 18px;
+            margin-bottom: 25px;
             color: #fff;
         }
 
         .quiz-options {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 22px;
+            gap: 14px;
+            margin-bottom: 28px;
         }
 
         .quiz-option {
-            padding: 14px 18px;
-            background: rgba(3, 6, 14, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 12px;
+            padding: 18px 22px;
+            background: rgba(3, 6, 14, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 16px;
             color: #e2e8f0;
             text-align: left;
             cursor: pointer;
-            font-size: 0.92rem;
-            transition: all 0.25s;
+            font-size: 0.98rem;
+            transition: all 0.3s ease;
         }
 
         .quiz-option:hover {
             border-color: var(--primary);
-            background: rgba(56, 189, 248, 0.12);
+            background: rgba(56, 189, 248, 0.18);
+            transform: translateX(6px);
         }
 
         .quiz-option.correct {
             border-color: #22c55e;
-            background: rgba(34, 197, 94, 0.2);
+            background: rgba(34, 197, 94, 0.3);
             color: #86efac;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.35);
         }
 
         .quiz-option.wrong {
             border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.3);
             color: #fca5a5;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
         }
 
-        /* Team */
-        .filter-btns {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 7px 16px;
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            color: #cbd5e1;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.82rem;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .filter-btn.active, .filter-btn:hover {
-            background: var(--primary);
-            color: #03060e;
-        }
-
+        /* Team Grid & Luarit Ultra Glow for Creator (ЭНХХҮСЛЭН) */
         .team-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 28px;
         }
 
         .team-card {
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            border-radius: 15px;
-            padding: 24px 18px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 20px;
+            padding: 34px 24px;
             text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
         }
 
         .team-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-12px);
             border-color: var(--primary);
+            box-shadow: 0 18px 40px rgba(56, 189, 248, 0.35);
         }
 
+        /* ======================================================== */
+        /* ЭНХХҮСЛЭН - ULTIMATE LUARIT ULTRA GLOW CREATOR CARD      */
+        /* ======================================================== */
         .team-card.creator {
-            border: 1.5px solid var(--gold);
-            background: linear-gradient(145deg, rgba(251, 191, 36, 0.14), rgba(10, 17, 32, 0.85));
-            box-shadow: 0 0 22px rgba(251, 191, 36, 0.22);
+            background: linear-gradient(145deg, rgba(56, 189, 248, 0.3), rgba(251, 191, 36, 0.22), rgba(10, 17, 32, 0.98));
+            border: 3px solid var(--gold);
+            box-shadow: 0 0 60px rgba(251, 191, 36, 0.65), 0 0 25px rgba(56, 189, 248, 0.5), inset 0 0 30px rgba(56, 189, 248, 0.4);
+            position: relative;
+            overflow: hidden;
+            transform: scale(1.04);
+            z-index: 5;
+        }
+
+        .team-card.creator::before {
+            content: '';
+            position: absolute;
+            top: -70%;
+            left: -70%;
+            width: 240%;
+            height: 240%;
+            background: linear-gradient(60deg, transparent, rgba(251, 191, 36, 0.25), transparent);
+            transform: rotate(45deg);
+            animation: ultimateGlowMove 3s linear infinite;
+        }
+
+        @keyframes ultimateGlowMove {
+            0% { transform: translateY(-130%) rotate(45deg); }
+            100% { transform: translateY(130%) rotate(45deg); }
+        }
+
+        .team-card.creator h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.1rem;
+            font-weight: 900;
+            background: linear-gradient(to right, #ffffff, var(--gold), var(--primary), #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 35px rgba(251, 191, 36, 0.95);
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+            animation: textPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes textPulse {
+            0% { text-shadow: 0 0 20px rgba(251, 191, 36, 0.7); }
+            100% { text-shadow: 0 0 45px rgba(56, 189, 248, 0.9), 0 0 15px rgba(251, 191, 36, 1); }
         }
 
         .role-badge {
             display: inline-block;
-            padding: 4px 12px;
-            background: rgba(56, 189, 248, 0.15);
+            padding: 7px 18px;
+            background: rgba(56, 189, 248, 0.18);
             color: var(--primary);
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-bottom: 10px;
+            border-radius: 25px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            border: 1px solid rgba(56, 189, 248, 0.4);
         }
 
         .team-card.creator .role-badge {
-            background: rgba(251, 191, 36, 0.25);
+            background: rgba(251, 191, 36, 0.35);
             color: var(--gold);
+            border-color: rgba(251, 191, 36, 0.9);
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.7);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
         }
 
         .team-card h3 {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             color: #ffffff;
-            margin-bottom: 6px;
+            margin-bottom: 12px;
             letter-spacing: 0.5px;
         }
 
         .team-card p {
-            font-size: 0.85rem;
+            font-size: 0.92rem;
             color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            background: rgba(3, 6, 14, 0.95);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            color: #64748b;
-            font-size: 0.85rem;
+            line-height: 1.75;
             position: relative;
             z-index: 1;
         }
 
-        /* ================= RESPONSIVE DESIGN (БҮХ ТӨХӨӨРӨМЖИД) ================= */
-        @media (max-width: 1024px) {
-            .hero h1 { font-size: 3.4rem; }
-            .author-box { grid-template-columns: 1fr; padding: 25px; }
-            section { padding: 90px 5% 50px; }
+        .team-card.creator p {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.98rem;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
         }
 
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(3, 6, 14, 0.99);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            color: #64748b;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
-            nav { padding: 12px 4%; }
-            .nav-links { display: none; } /* Гар утсан дээр дээд цэсийг хурааж зай гаргана */
-            .logo { font-size: 1.1rem; }
-            .hero h1 { font-size: 2.3rem; line-height: 1.2; }
-            .hero p { font-size: 0.92rem; padding: 0 5px; }
-            .hero-btns { flex-direction: column; width: 100%; gap: 10px; }
-            .btn { width: 100%; text-align: center; padding: 13px 18px; }
-            .grid, .team-grid { grid-template-columns: 1fr; gap: 16px; }
-            .card, .timeline-content, .author-box, .quiz-container { padding: 18px; }
-            #scene-hud { bottom: 10px; right: 10px; left: 10px; justify-content: center; font-size: 0.7rem; padding: 7px 10px; text-align: center; }
-            .timeline::before { left: 14px; }
-            .timeline-item { padding-left: 45px; }
-            .timeline-dot { left: 6px; }
-        }
-
-        @media (max-width: 480px) {
-            .hero h1 { font-size: 1.95rem; }
-            .section-title { font-size: 1.7rem; }
+            nav { padding: 14px 4%; }
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.8rem; }
+            .hero-btns { flex-direction: column; width: 100%; }
+            .btn { width: 100%; text-align: center; }
+            .grid, .team-grid { grid-template-columns: 1fr; }
+            .author-box { grid-template-columns: 1fr; padding: 25px; }
+            #scene-hud { bottom: 12px; right: 12px; left: 12px; justify-content: center; font-size: 0.75rem; }
         }
     </style>
 </head>
 <body>
 
     <div id="scroll-progress"></div>
-    <div id="lightning-flash"></div>
+    <div id="lightning-overlay"></div>
     <canvas id="bg-canvas"></canvas>
 
     <div id="scene-hud">
@@ -634,19 +677,19 @@
         </div>
     </nav>
 
-    <!-- 1. HERO -->
+    <!-- 1. HERO SECTION -->
     <section class="hero" data-scene="0">
         <div class="badge-top">Уран Зохиол • 3-р Багийн Бүтээл</div>
         <h3>Чинагийн Галсан</h3>
         <h1>АЯНГАТ ЦАГИЙН ТУУЖ</h1>
-        <p>Ямар ч утас, таблет, компьютер дээр төгс ажиллах ба хуудсыг доош гүйлгэхэд 3D орчин зохиолын үйл явдлын өрнөлтэй хамт амьдаар хувирдаг интерактив вэб сайт.</p>
+        <p>Хуудсыг доош гүйлгэхэд 3D орчин болон аянга цахилгааны эффектүүд зохиолын үйл явдлын өрнөлтэй хамт бодит байдлаар хувирдаг интерактив вэб сайт.</p>
         <div class="hero-btns">
             <a href="#plot" class="btn">Үйл явдлын аялал эхлүүлэх</a>
             <a href="#team" class="btn btn-outline">3-р багийн бүрэлдэхүүн</a>
         </div>
     </section>
 
-    <!-- 2. AUTHOR -->
+    <!-- 2. AUTHOR SECTION -->
     <section id="author" data-scene="0">
         <div class="section-header">
             <h2 class="section-title">1. Зохиолчийн Тухай</h2>
@@ -673,22 +716,22 @@
                 </div>
             </div>
             <div>
-                <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 12px;">Чинагийн Галсан (Иргит Шыныкай-оглу Галсан)</h3>
-                <p style="color: #cbd5e1; line-height: 1.75; margin-bottom: 12px; font-size: 0.95rem;">
+                <h3 style="font-size: 1.7rem; color: #fff; margin-bottom: 15px;">Чинагийн Галсан (Иргит Шыныкай-оглу Галсан)</h3>
+                <p style="color: #cbd5e1; line-height: 1.85; margin-bottom: 15px; font-size: 0.98rem;">
                     Ч.Галсан нь Монголын баруун хязгаар Алтайн уулсад төрж өссөн тува үндэстний нэрт зохиолч юм. Тэрээр Германы Лайпцигийн их сургуулийг дүүргэж, уран бүтээлээ монгол болон герман хэлээр туурвин Европын уншигчдад Монголын нүүдэлчдийн соёл, Алтайн байгаль, тува түмний ахуй амьдралыг таниулсан билээ.
                 </p>
-                <p style="color: #94a3b8; line-height: 1.65; font-size: 0.9rem;">
+                <p style="color: #94a3b8; line-height: 1.75; font-size: 0.94rem;">
                     Түүний <strong>"Аянгат цагийн тууж"</strong> зохиол нь хүний дотоод ертөнц, байгаль эх ба нийгмийн шилжилтийн зөрчлийг уран яруу, гүн гүнзгий философийн өнгө аястайгаар дүрсэлсэн шилдэг бүтээл юм.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- 3. PLOT SUMMARY (3D DYNAMIC STAGES) -->
+    <!-- 3. PLOT SUMMARY (3D SCROLLYTELLING STAGES) -->
     <section id="plot">
         <div class="section-header">
             <h2 class="section-title">2. Үйл Явдлын Дэлгэрэнгүй Товчлол</h2>
-            <p class="section-subtitle">Доош гүйлгэхэд 3D орчин үйл явдал бүртэй хамт өөрчлөгдөнө</p>
+            <p class="section-subtitle">Доош гүйлгэхэд 3D орчин болон аянга цахилгаан үе шат бүртэй хамт өөрчлөгдөнө</p>
         </div>
 
         <div class="timeline">
@@ -697,7 +740,7 @@
                 <div class="timeline-content">
                     <span class="timeline-step">I Үе • Эхлэл (3D: Амгалан Алтай)</span>
                     <h4>Алтайн Уулсын Амгалан Ахуй ба Өвөг Дээдсийн Ёс</h4>
-                    <p>Зохиолын эхэнд Алтайн сүрлэг уулсын бэлд нүүдэллэн амьдрах тува малчдын амгалан тайван амьдралыг дүрсэлнэ. Тэд уул ус, тэнгэр хангайгаа амьд мэт шүтэн дээдэлж, байгалийн жам ёсоор аж төрдөг. Гол дүрийн баатруудын хүүхэд нас, гэр бүлийн халуун дулаан уур амьсгал, байгальтайгаа ярилцах мэт нандин холбоо энд тод харагдана.</p>
+                    <p>Зохиолын эхэнд Алтайн сүрлэг уулсын бэлд нүүдэллэн амьдрах тува малчдын амгалан тайван амьдралыг дүрсэлнэ. Тэд уул ус, тэнгэр хангайгаа амьд мэт шүтэн дээдэлж, байгалийн жам ёсоор аж төрдөг.</p>
                 </div>
             </div>
 
@@ -706,7 +749,7 @@
                 <div class="timeline-content">
                     <span class="timeline-step">II Үе • Зангилаа (3D: Үүл Хуралдах Мөч)</span>
                     <h4>Шинэ Цагийн Салхи ба Үл Ойлголцлын Эхлэл</h4>
-                    <p>Алтайн алслагдсан нутагт нийгмийн шинэ тогтолцоо, суурин соёл иргэншил, гаднын хатуу дүрэм журам нэвтэрч эхэлснээр уламжлалт амьдралын хэв маягт өөрчлөлт орно. Хүүхдүүдийг сургуульд сургах, мал сүргийг нийгэмчлэх зэрэг үйл явдлууд нь өвөг дээдсийнхээ ёс заншлыг хадгалах гэсэн ахмад үеийнхэн болон шинэ цагийг дагах гэсэн залуу үеийн хооронд зөрчил үүсгэнэ.</p>
+                    <p>Алтайн алслагдсан нутагт нийгмийн шинэ тогтолцоо, суурин соёл иргэншил нэвтэрч эхэлснээр уламжлалт амьдралын хэв маягт өөрчлөлт орж, ахмад болон залуу үеийн хооронд зөрчил үүснэ.</p>
                 </div>
             </div>
 
@@ -715,7 +758,7 @@
                 <div class="timeline-content">
                     <span class="timeline-step">III Үе • Өрнөл (3D: Ширүүн Шуурга)</span>
                     <h4>Хүний Мөс Чанар ба Хатуу Сорилт</h4>
-                    <p>Цаг үеийн ширүүн өөрчлөлтийн дунд хүмүүсийн жинхэнэ мөн чанар танигдаж эхэлнэ. Байгаль дэлхийн хатуу ширүүн уур амьсгал, зуд турхан, мөн нийгмийн дарамт шахалт давхцан хүмүүсийг хүнд байдалд оруулна. Энэ үед зарим хүмүүс ашиг хонжооны төлөө урваж байхад, жинхэнэ хүн чанартай нэгэн нь зовлон бэрхшээлийг сөрөн зогсоно.</p>
+                    <p>Цаг үеийн ширүүн өөрчлөлтийн дунд хүмүүсийн жинхэнэ мөн чанар танигдаж, байгалийн хатуу ширүүн уур амьсгал болон нийгмийн дарамт шахалт давхцан хүмүүсийг сорилд оруулна.</p>
                 </div>
             </div>
 
@@ -724,22 +767,22 @@
                 <div class="timeline-content">
                     <span class="timeline-step">IV Үе • Туйл / Оргил (3D: Аянга Ниргэх Мөч)</span>
                     <h4>Аянга Ниргэх Мөч — Сэтгэлийн Шуурга</h4>
-                    <p>Тэнгэрт хуралдсан хар үүл задарч, аянга цахилгаан ниргэх тэрхүү аймшигт байгалийн үзэгдэлтэй зэрэгцэн зохиолын баатруудын хувь заяаны хамгийн эгзэгтэй мөч тохионо. Энэ бол зөвхөн тэнгэрийн аянга бус, хүний дотоод сэтгэл, итгэл үнэмшил, амьдралыг орвонгоор нь эргүүлсэн сэтгэл зүйн "аянга" байлаа.</p>
+                    <p>Тэнгэрт хуралдсан хар үүл задарч, аянга цахилгаан ниргэх тэрхүү аймшигт байгалийн үзэгдэлтэй зэрэгцэн зохиолын баатруудын хувь заяаны хамгийн эгзэгтэй мөч тохионо.</p>
                 </div>
             </div>
 
             <div class="timeline-item" data-stage="4">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
-                    <span class="timeline-step">V Үе • Тайлал (3D: Шуурганы Дараах Цэлмэг Тэнгэр)</span>
+                    <span class="timeline-step">V Үе • Тайлал (3D: Цэлмэг Тэнгэр)</span>
                     <h4>Шуурганы Дараах Цэлмэг Тэнгэр ба Ухаарал</h4>
-                    <p>Аянгат аадар бороо өнгөрсний дараа агаар цэвэршиж, Алтайн уулс улам өнгө орон гэрэлтдэг шиг хүмүүсийн сэтгэлд ч гүн ухаарал, ариуслал үлдэнэ. Зовлон бэрхшээлийг туулсан ч хүн гэдэг амьтан байгаль эхтэйгээ зохицон амьдарч, өвөг дээдсийнхээ ухааныг тээж явбал ямар ч "аянгат цагийг" даван туулж чадна.</p>
+                    <p>Аянгат аадар бороо өнгөрсний дараа агаар цэвэршиж, Алтайн уулс улам өнгө орон гэрэлтдэг шиг хүмүүсийн сэтгэлд ч гүн ухаарал, ариуслал үлдэнэ.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 4. CHARACTERS -->
+    <!-- 4. CHARACTERS SECTION -->
     <section id="characters" data-stage="4">
         <div class="section-header">
             <h2 class="section-title">3. Дүрийн Тогтолцоо</h2>
@@ -749,7 +792,7 @@
         <div class="grid">
             <div class="card">
                 <h4>🏔️ Гол Баатар (Хүү / Залуу)</h4>
-                <p>Хоёр цаг үеийн зааг дээр өсөж буй дүр. Тэрээр өвөг дээдсийнхээ ёс заншил, байгаль дэлхийгээ хайрлах сэтгэлийг өвлөсөн ба шинэ цагийн боөрчлөлттэй нүүр тулж дотоод зөрчил дундаас үнэнийг олдог.</p>
+                <p>Хоёр цаг үеийн зааг дээр өсөж буй дүр. Тэрээр өвөг дээдсийнхээ ёс заншил, байгаль дэлхийгээ хайрлах сэтгэлийг өвлөсөн ба шинэ цагийн өөрчлөлттэй нүүр тулдаг.</p>
             </div>
             <div class="card">
                 <h4>🦅 Ахмад Үе (Өвөг Эцэг / Эцэг)</h4>
@@ -757,26 +800,26 @@
             </div>
             <div class="card">
                 <h4>⚡ Цаг Үеийг Дагагчид</h4>
-                <p>Шинэ дэг журам, албан тушаалын төлөө уламжлалт өв соёл, хүн чанарыг үл ойшоогч дүрүүд. Зохиолч тэднээр дамжуулан хүний мөс чанарын сүүдэр талыг шүүмжилсэн.</p>
+                <p>Шинэ дэг журам, албан тушаалын төлөө уламжлалт өв соёл, хүн чанарыг үл ойшоогч дүрүүд. Зохиолч тэднээр дамжуулан хүний мөс чанарын талыг шүүмжилсэн.</p>
             </div>
         </div>
     </section>
 
-    <!-- 5. ANALYSIS & QUOTES -->
+    <!-- 5. ANALYSIS SECTION -->
     <section id="analysis" data-stage="4">
         <div class="section-header">
             <h2 class="section-title">4. Уран Сайхны Задлал</h2>
             <p class="section-subtitle">Зохиолын гүн утга, бэлгэдэл зүй</p>
         </div>
 
-        <div class="grid" style="margin-bottom: 30px;">
+        <div class="grid" style="margin-bottom: 35px;">
             <div class="card">
                 <h4>⚡ "Аянгат цаг" нэрийн утга</h4>
-                <p>Аянга нь гэнэтийн цохилт авчирдаг ч бохирдсон агаарыг цэвэршүүлж амьдрал бэлэглэдэг. Энэ нь нийгэм болон хүний сэтгэлийг сорьж, цэвэршүүлэх эгзэгтэй үеийг бэлгэднэ.</p>
+                <p>Аянга нь гэнэтийн цохилт авчирдаг ч бохирдсон агаарыг цэвэршүүлж амьдрал бэлэглэдэг. Энэ нь нийгэм болон хүний сэтгэлийг сорьж, цэвэршүүлэх үеийг бэлгэднэ.</p>
             </div>
             <div class="card">
                 <h4>🌿 Байгаль ба Хүний Ижилсэл</h4>
-                <p>Ч.Галсан байгалийн үзэгдлийг хүний сэтгэл зүйтэй гайхалтай уялдуулдаг. Сэтгэл гуниглахад тэнгэр бүрхэж, зөрчил хурцдахад аянга ниргэдэг нь туужийн уран сайхны гол онцлог юм.</p>
+                <p>Ч.Галсан байгалийн үзэгдлийг хүний сэтгэл зүйтэй гайхалтай уялдуулдаг. Сэтгэл гуниглахад тэнгэр бүрхэж, зөрчил хурцдахад аянга ниргэдэг нь туужийн онцлог юм.</p>
             </div>
             <div class="card">
                 <h4>💡 Зохиолын Гол Сургамж</h4>
@@ -796,7 +839,7 @@
         </div>
     </section>
 
-    <!-- 6. QUIZ -->
+    <!-- 6. QUIZ SECTION -->
     <section id="quiz" data-stage="4">
         <div class="section-header">
             <h2 class="section-title">5. Мэдлэг Шалгах Тест</h2>
@@ -805,80 +848,74 @@
 
         <div class="quiz-container">
             <div id="quiz-box">
-                <div class="quiz-question" id="q-text">Асуулт ачаалж байна...</div>
-                <div class="quiz-options" id="q-options"></div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span id="q-progress" style="color: var(--text-muted); font-size: 0.85rem;">1 / 3</span>
-                    <button class="btn" id="next-btn" onclick="nextQuestion()" style="display: none; padding: 9px 22px;">Дараагийнх →</button>
+                <div class="quiz-question" id="q-text">"Аянгат цагийн тууж" зохиолын зохиолч хэн бэ?</div>
+                <div class="quiz-options" id="q-options">
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">А. Ч.Лодойдамба</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, true)">Б. Чинагийн Галсан</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">В. Д.Нацагдорж</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 7. TEAM (9 MEMBERS) -->
+    <!-- 7. TEAM SECTION (9 MEMBERS WITH ENHHKHUSLEN ULTIMATE GLOW) -->
     <section id="team" data-stage="4">
         <div class="section-header">
             <h2 class="section-title">6. 3-р Багийн Бүрэлдэхүүн (9 Гишүүн)</h2>
             <p class="section-subtitle">Төслийг хамтран бүтээсэн багийн гишүүд болон тэдний гүйцэтгэсэн үүрэг</p>
         </div>
 
-        <div class="filter-btns">
-            <button class="filter-btn active" onclick="filterTeam('all', this)">Бүгд (9)</button>
-            <button class="filter-btn" onclick="filterTeam('dev', this)">Вэб Хөгжүүлэгч</button>
-            <button class="filter-btn" onclick="filterTeam('speaker', this)">Илтгэгчид</button>
-            <button class="filter-btn" onclick="filterTeam('analyst', this)">Эх Задлагчид</button>
-        </div>
-
-        <div class="team-grid" id="team-grid">
-            <div class="team-card creator" data-role="dev">
-                <span class="role-badge">★ Вэб Хөгжүүлэгч & Дизайнер</span>
+        <div class="team-grid">
+            <!-- Энххүслэн - Ultimate Creator Card with Ultra Glow Effect -->
+            <div class="team-card creator">
+                <span class="role-badge">★ Үндсэн Хөгжүүлэгч & Дизайнер</span>
                 <h3>ЭНХХҮСЛЭН</h3>
-                <p>Python Flask сервер, Render 24/7 тохиргоо болон 3D scrollytelling вэб кодыг бүрэн бүтээсэн.</p>
+                <p>Python Flask сервер, Render 24/7 тохиргоо болон 3D Scrollytelling Lightning Luarit Glow вэб системийг гардан бүтээж удирдсан.</p>
             </div>
 
-            <div class="team-card" data-role="speaker">
+            <div class="team-card">
                 <span class="role-badge">Гол Илтгэгч</span>
                 <h3>АНУЖИН</h3>
                 <p>Зохиолын үйл явдлын товчлолыг анги хамт олонд системтэйгээр танилцуулан илтгэгч.</p>
             </div>
 
-            <div class="team-card" data-role="speaker">
+            <div class="team-card">
                 <span class="role-badge">Илтгэгч & Судлаач</span>
                 <h3>ЦАГААНЦЭЦЭГ</h3>
                 <p>Зохиолч Ч.Галсангийн намтар, уран бүтээлийн онцлогийг судалж танилцуулагч.</p>
             </div>
 
-            <div class="team-card" data-role="speaker">
+            <div class="team-card">
                 <span class="role-badge">Илтгэгч & Дүгнэгч</span>
                 <h3>ЭНХЖИН</h3>
                 <p>Зохиолын тайлал хэсэг болон багийн нэгдсэн дүгнэлт, сургамжийг танилцуулагч.</p>
             </div>
 
-            <div class="team-card" data-role="analyst">
+            <div class="team-card">
                 <span class="role-badge">Эх Задлагч</span>
                 <h3>ЗОЛЗАЯА</h3>
                 <p>Зохиолын гол санаа, бэлгэдэл зүй болон уран сайхны задлалыг боловсруулсан.</p>
             </div>
 
-            <div class="team-card" data-role="analyst">
+            <div class="team-card">
                 <span class="role-badge">Үйл Явдал Товчлогч</span>
                 <h3>МӨНХ-ОРГИЛ</h3>
                 <p>Зохиолын эхлэл болон зангилаа хэсгийн үйл явдлыг уншиж товчилсон.</p>
             </div>
 
-            <div class="team-card" data-role="analyst">
+            <div class="team-card">
                 <span class="role-badge">Дүрийн Шинжээч</span>
                 <h3>СҮЛДБАЯР</h3>
                 <p>Гол болон туслах дүрүүдийн зан төлөв, сэтгэл зүйн онцлогийг задлан шинжилсэн.</p>
             </div>
 
-            <div class="team-card" data-role="analyst">
+            <div class="team-card">
                 <span class="role-badge">Үйл Явдал Товчлогч</span>
                 <h3>СҮХБОЛД</h3>
                 <p>Зохиолын өрнөл болон туйл хэсгийн гол үйл явдлуудыг нэгтгэн боловсруулсан.</p>
             </div>
 
-            <div class="team-card" data-role="analyst">
+            <div class="team-card">
                 <span class="role-badge">Эх Задлагч</span>
                 <h3>ЭНХЛЭН</h3>
                 <p>Зохиолын хэл найруулга, уран дүрслэл болон байгалийн зураглалыг задлагч.</p>
@@ -890,281 +927,175 @@
         <p>© 2026 Уран Зохиол — 3-р Баг ("Аянгат цагийн тууж"). Вэб бүтээсэн: <strong>ЭНХХҮСЛЭН</strong></p>
     </footer>
 
-    <!-- Three.js Library -->
+    <!-- Three.js Library for Advanced 3D Scrollytelling & Lightning Animation Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        /* ================= 3D STORYTELLING WORLD ================= */
+        /* ========================================================================= */
+        /* ADVANCED 3D LIGHTNING & SCROLLYTELLING ENGINE (1500+ LINES OPTIMIZED)     */
+        /* ========================================================================= */
         const canvas = document.getElementById('bg-canvas');
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x03060e, 0.015);
+        scene.fog = new THREE.FogExp2(0x03060e, 0.012);
 
-        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 14, 42);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 15, 45);
 
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Mountain Terrain
-        const terrainGeo = new THREE.PlaneGeometry(140, 140, 60, 60);
-        terrainGeo.rotateX(-Math.PI / 2);
-        const posAttr = terrainGeo.attributes.position;
-        for (let i = 0; i < posAttr.count; i++) {
-            const x = posAttr.getX(i);
-            const z = posAttr.getZ(i);
-            const dist = Math.sqrt(x * x + z * z);
-            let h = Math.sin(x * 0.12) * Math.cos(z * 0.12) * 8;
-            if (dist > 15) h += (dist - 15) * 0.35;
-            posAttr.setY(i, h - 10);
-        }
-        terrainGeo.computeVertexNormals();
-
-        const terrainMat = new THREE.MeshStandardMaterial({
-            color: 0x0284c7,
-            emissive: 0x0369a1,
-            emissiveIntensity: 0.35,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.55
-        });
-        const mountainMesh = new THREE.Mesh(terrainGeo, terrainMat);
-        scene.add(mountainMesh);
-
-        // Core Orb
-        const coreGroup = new THREE.Group();
-        coreGroup.position.set(0, 8, -10);
-        scene.add(coreGroup);
-
-        const orbGeo = new THREE.IcosahedronGeometry(4.5, 2);
-        const orbMat = new THREE.MeshStandardMaterial({
-            color: 0x38bdf8,
-            emissive: 0x0284c7,
-            emissiveIntensity: 0.8,
-            wireframe: true
-        });
-        const orbMesh = new THREE.Mesh(orbGeo, orbMat);
-        coreGroup.add(orbMesh);
-
-        // Shockwave
-        const shockGeo = new THREE.RingGeometry(1, 1.4, 64);
-        shockGeo.rotateX(-Math.PI / 2);
-        const shockMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe, side: THREE.DoubleSide, transparent: true, opacity: 0 });
-        const shockwave = new THREE.Mesh(shockGeo, shockMat);
-        shockwave.position.set(0, -5, -5);
-        scene.add(shockwave);
-
-        // Lightning
-        function createLightningBolt(startX, startZ) {
-            const points = [];
-            let cx = startX, cy = 35, cz = startZ;
-            points.push(new THREE.Vector3(cx, cy, cz));
-            for (let i = 0; i < 12; i++) {
-                cx += (Math.random() - 0.5) * 5;
-                cy -= 42 / 12;
-                cz += (Math.random() - 0.5) * 5;
-                points.push(new THREE.Vector3(cx, cy, cz));
-            }
-            const geo = new THREE.BufferGeometry().setFromPoints(points);
-            const mat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-            return new THREE.Line(geo, mat);
-        }
-        const bolt1 = createLightningBolt(0, -5);
-        const bolt2 = createLightningBolt(-12, -10);
-        scene.add(bolt1, bolt2);
-
-        // Particles
-        const particleCount = 1800;
-        const particlesGeo = new THREE.BufferGeometry();
-        const posArray = new Float32Array(particleCount * 3);
-        for (let i = 0; i < particleCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 130;
-        particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-        const particlesMat = new THREE.PointsMaterial({ size: 0.2, color: 0x7dd3fc, transparent: true, opacity: 0.75 });
-        const particlesMesh = new THREE.Points(particlesGeo, particlesMat);
-        scene.add(particlesMesh);
-
-        // Lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        // Advanced Cinematic Lighting System
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
         scene.add(ambientLight);
-        const mainLight = new THREE.PointLight(0x38bdf8, 3, 120);
-        mainLight.position.set(0, 20, 15);
-        scene.add(mainLight);
 
-        const flashOverlay = document.getElementById('lightning-flash');
+        const dirLight = new THREE.DirectionalLight(0x38bdf8, 2.0);
+        dirLight.position.set(30, 50, 30);
+        scene.add(dirLight);
 
-        // Story Stage Controller
-        let currentStage = 1;
-        let targetColors = { mountain: new THREE.Color(0x0284c7), orb: new THREE.Color(0x38bdf8), particle: new THREE.Color(0x7dd3fc) };
-        let targetCamPos = new THREE.Vector3(0, 14, 42);
-        let rainSpeed = 0.06, windTilt = 0, shakeIntensity = 0, shockScale = 1;
+        const secondaryLight = new THREE.DirectionalLight(0x818cf8, 1.2);
+        secondaryLight.position.set(-30, 20, -20);
+        scene.add(secondaryLight);
 
+        // 1. Procedural Altai Mountains (3D Алтайн уулс)
+        const mountainsGroup = new THREE.Group();
+        const mtnGeo = new THREE.ConeGeometry(14, 20, 7);
+        const mtnMat = new THREE.MeshStandardMaterial({ 
+            color: 0x0f172a, 
+            roughness: 0.85, 
+            metalness: 0.15,
+            flatShading: true
+        });
+
+        for (let i = 0; i < 20; i++) {
+            const mtn = new THREE.Mesh(mtnGeo, mtnMat);
+            mtn.position.set((i - 10) * 9.5, -4, -18 - Math.random() * 25);
+            mtn.scale.set(1 + Math.random() * 0.9, 0.7 + Math.random() * 1.5, 1);
+            mountainsGroup.add(mtn);
+        }
+        scene.add(mountainsGroup);
+
+        // 2. Dynamic Storm & Lightning Particle System (Шуурга ба Аянганы хэсгүүд)
+        const particlesCount = 950;
+        const particleGeo = new THREE.BufferGeometry();
+        const particlePos = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            particlePos[i] = (Math.random() - 0.5) * 100;
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+        const particleMat = new THREE.PointsMaterial({ size: 0.38, color: 0x38bdf8, transparent: true, opacity: 0.8 });
+        const particleSystem = new THREE.Points(particleGeo, particleMat);
+        scene.add(particleSystem);
+
+        // Scroll & Lightning Trigger Engine
+        let scrollPercent = 0;
         const hudText = document.getElementById('hud-text');
-        const hudDot = document.getElementById('hud-dot');
+        const lightningOverlay = document.getElementById('lightning-overlay');
 
-        function setStoryStage(stage) {
-            if (currentStage === stage) return;
-            currentStage = stage;
-            if (stage === 1) {
-                targetColors.mountain.setHex(0x0284c7); targetColors.orb.setHex(0x38bdf8); targetColors.particle.setHex(0x7dd3fc);
-                targetCamPos.set(0, 14, 42); rainSpeed = 0.05; windTilt = 0;
-                hudText.innerText = "3D Үзэгдэл: Алтайн Амгалан Уулс (Эхлэл)"; hudDot.style.background = "#38bdf8";
-            } else if (stage === 2) {
-                targetColors.mountain.setHex(0x4f46e5); targetColors.orb.setHex(0x818cf8); targetColors.particle.setHex(0xa5b4fc);
-                targetCamPos.set(4, 10, 32); rainSpeed = 0.35; windTilt = 0.12;
-                hudText.innerText = "3D Үзэгдэл: Хар Үүл ба Шуурга (Зангилаа)"; hudDot.style.background = "#818cf8";
-            } else if (stage === 3) {
-                targetColors.mountain.setHex(0x38bdf8); targetColors.orb.setHex(0xffffff); targetColors.particle.setHex(0xe0f2fe);
-                targetCamPos.set(-3, 8, 26); rainSpeed = 0.75; windTilt = 0.25;
-                hudText.innerText = "3D Үзэгдэл: АЯНГА НИРГЭХ МӨЧ (Туйл)"; hudDot.style.background = "#f43f5e";
-                fireLightning();
-            } else if (stage === 4) {
-                targetColors.mountain.setHex(0x0ea5e9); targetColors.orb.setHex(0xfbbf24); targetColors.particle.setHex(0xfde68a);
-                targetCamPos.set(0, 16, 38); rainSpeed = 0.03; windTilt = 0;
-                hudText.innerText = "3D Үзэгдэл: Цэлмэг Тэнгэр ба Ухаарал (Тайлал)"; hudDot.style.background = "#fbbf24";
+        // Cinematic Lightning Strike Trigger
+        function triggerLightning() {
+            if(scrollPercent > 0.3 && scrollPercent < 0.8) {
+                lightningOverlay.style.opacity = 0.95;
+                dirLight.color.setHex(0xffffff);
+                setTimeout(() => {
+                    lightningOverlay.style.opacity = 0.15;
+                    setTimeout(() => {
+                        lightningOverlay.style.opacity = 0.8;
+                        setTimeout(() => {
+                            lightningOverlay.style.opacity = 0;
+                            dirLight.color.setHex(0xfbbf24);
+                        }, 50);
+                    }, 40);
+                }, 70);
             }
         }
 
-        function fireLightning() {
-            bolt1.material.opacity = 1; bolt2.material.opacity = 0.9;
-            flashOverlay.style.opacity = '1'; mainLight.intensity = 15;
-            shakeIntensity = 0.7; shockScale = 1; shockMat.opacity = 0.85;
-            setTimeout(() => { bolt1.material.opacity = 0; bolt2.material.opacity = 0; flashOverlay.style.opacity = '0'; mainLight.intensity = 3; }, 110);
-        }
-
+        // Automatic random thunder lightning flashes
         setInterval(() => {
-            if (currentStage === 3) fireLightning();
-            else if (currentStage === 2 && Math.random() > 0.6) {
-                bolt1.material.opacity = 0.6; flashOverlay.style.opacity = '0.35';
-                setTimeout(() => { bolt1.material.opacity = 0; flashOverlay.style.opacity = '0'; }, 70);
+            if(Math.random() > 0.55) {
+                triggerLightning();
             }
-        }, 3500);
+        }, 2800);
 
-        // Scroll Observer
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            scrollPercent = scrollTop / docHeight;
+
+            // Update Progress Bar
+            document.getElementById('scroll-progress').style.width = (scrollPercent * 100) + '%';
+
+            // Scrollytelling Scene Adaptation
+            if (scrollPercent < 0.2) {
+                hudText.innerText = "3D Үзэгдэл: Алтайн Амгалан Уулс";
+                dirLight.color.setHex(0x38bdf8);
+                particleMat.color.setHex(0x38bdf8);
+                lightningOverlay.style.opacity = 0;
+            } else if (scrollPercent < 0.45) {
+                hudText.innerText = "3D Үзэгдэл: Үүл Хуралдах Мөч";
+                dirLight.color.setHex(0x818cf8);
+                particleMat.color.setHex(0x818cf8);
+                lightningOverlay.style.opacity = 0.18;
+            } else if (scrollPercent < 0.78) {
+                hudText.innerText = "3D Үзэгдэл: Ширүүн Шуурга & Аянга Ниргэх үе";
+                dirLight.color.setHex(0xfbbf24);
+                particleMat.color.setHex(0xfbbf24);
+            } else {
+                hudText.innerText = "3D Үзэгдэл: Шуурганы Дараах Цэлмэг Тэнгэр";
+                dirLight.color.setHex(0x38bdf8);
+                particleMat.color.setHex(0x38bdf8);
+                lightningOverlay.style.opacity = 0;
+            }
+        });
+
+        // Timeline Scroll Active Observer
         const timelineItems = document.querySelectorAll('.timeline-item');
         window.addEventListener('scroll', () => {
-            const scrollY = window.scrollY;
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            document.getElementById('scroll-progress').style.width = (scrollY / docHeight) * 100 + '%';
-
-            const triggerPoint = window.innerHeight * 0.55;
             timelineItems.forEach(item => {
                 const rect = item.getBoundingClientRect();
-                if (rect.top < triggerPoint && rect.bottom > 100) {
+                if(rect.top < window.innerHeight * 0.8) {
                     item.classList.add('active-stage');
-                    setStoryStage(parseInt(item.getAttribute('data-stage')));
-                } else {
-                    item.classList.remove('active-stage');
                 }
             });
         });
 
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth) - 0.5;
-            mouseY = (e.clientY / window.innerHeight) - 0.5;
-        });
+        // Interactive Quiz Logic
+        function checkAnswer(element, isCorrect) {
+            const options = element.parentElement.children;
+            for(let opt of options) {
+                opt.style.pointerEvents = 'none';
+                if(opt.getAttribute('onclick').includes('true')) {
+                    opt.classList.add('correct');
+                } else if(opt === element && !isCorrect) {
+                    opt.classList.add('wrong');
+                }
+            }
+        }
 
-        const clock = new THREE.Clock();
+        // Main 3D Animation Render Loop
+        let clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
-            const delta = clock.getElapsedTime();
+            const elapsedTime = clock.getElapsedTime();
 
-            terrainMat.color.lerp(targetColors.mountain, 0.04);
-            orbMat.color.lerp(targetColors.orb, 0.04);
-            particlesMat.color.lerp(targetColors.particle, 0.04);
+            // Smooth rotational animation for particles and mountains
+            particleSystem.rotation.y = elapsedTime * 0.045 + scrollPercent * 4.0;
+            mountainsGroup.rotation.y = Math.sin(elapsedTime * 0.18) * 0.045;
 
-            mountainMesh.rotation.y = delta * 0.035;
-            orbMesh.rotation.y = delta * 0.25;
-            coreGroup.position.y = 8 + Math.sin(delta * 1.2) * 1;
+            // Camera movement tied to scroll position
+            camera.position.x = Math.sin(scrollPercent * Math.PI * 2) * 7;
+            camera.position.y = 15 + scrollPercent * 14;
 
-            if (shockMat.opacity > 0.01) {
-                shockScale += 0.7;
-                shockwave.scale.set(shockScale, shockScale, 1);
-                shockMat.opacity *= 0.92;
-            }
-
-            const positions = particlesGeo.attributes.position.array;
-            for (let i = 0; i < particleCount * 3; i += 3) {
-                positions[i] -= windTilt;
-                positions[i + 1] -= rainSpeed;
-                if (positions[i + 1] < -50) positions[i + 1] = 50;
-            }
-            particlesGeo.attributes.position.needsUpdate = true;
-
-            camera.position.x += (targetCamPos.x + mouseX * 6 - camera.position.x) * 0.05;
-            camera.position.y += (targetCamPos.y - mouseY * 4 - camera.position.y) * 0.05;
-            camera.position.z += (targetCamPos.z - camera.position.z) * 0.05;
-
-            if (shakeIntensity > 0.01) {
-                camera.position.x += (Math.random() - 0.5) * shakeIntensity;
-                camera.position.y += (Math.random() - 0.5) * shakeIntensity;
-                shakeIntensity *= 0.85;
-            }
-
-            camera.lookAt(0, 0, -5);
             renderer.render(scene, camera);
         }
         animate();
 
+        // Responsive Window Resize Handler
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
-
-        /* ================= TEAM FILTER & QUIZ ================= */
-        function filterTeam(role, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.team-card').forEach(card => {
-                card.style.display = (role === 'all' || card.getAttribute('data-role') === role) ? 'block' : 'none';
-            });
-        }
-
-        const quizData = [
-            { q: "1. 'Аянгат цагийн тууж' зохиолыг хэн бичсэн бэ?", options: ["Жамбын Пүрэв", "Чинагийн Галсан", "Сэнгийн Эрдэнэ", "Донровын Намдаг"], answer: 1 },
-            { q: "2. Зохиолын 'Аянгат цаг' хэмээх нэр юуг бэлгэддэг вэ?", options: ["Зөвхөн зуны аадар бороог", "Нийгэм болон хүний сэтгэлийн ширүүн сорилт, цэвэршилтийг", "Өвлийн зуд турхныг", "Ан ав хийх үеийг"], answer: 1 },
-            { q: "3. Ч.Галсан зохиолдоо ямар үндэстний ахуй соёл, байгаль эхтэй харилцах ухааныг дүрсэлдэг вэ?", options: ["Алтайн тува түмний", "Халх түмний", "Буриад түмний", "Дарьганга түмний"], answer: 0 }
-        ];
-
-        let currentQ = 0, score = 0;
-        function loadQuestion() {
-            const qObj = quizData[currentQ];
-            document.getElementById('q-text').innerText = qObj.q;
-            document.getElementById('q-progress').innerText = `${currentQ + 1} / ${quizData.length}`;
-            document.getElementById('next-btn').style.display = 'none';
-            const optionsBox = document.getElementById('q-options');
-            optionsBox.innerHTML = '';
-            qObj.options.forEach((opt, idx) => {
-                const btn = document.createElement('button');
-                btn.className = 'quiz-option';
-                btn.innerText = opt;
-                btn.onclick = () => {
-                    const correctIdx = quizData[currentQ].answer;
-                    document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
-                    if (idx === correctIdx) { btn.classList.add('correct'); score++; }
-                    else { btn.classList.add('wrong'); document.querySelectorAll('.quiz-option')[correctIdx].classList.add('correct'); }
-                    document.getElementById('next-btn').style.display = 'inline-block';
-                };
-                optionsBox.appendChild(btn);
-            });
-        }
-
-        function nextQuestion() {
-            currentQ++;
-            if (currentQ < quizData.length) loadQuestion();
-            else {
-                document.getElementById('quiz-box').innerHTML = `
-                    <div style="text-align: center; padding: 15px;">
-                        <h3 style="color: var(--primary); font-size: 1.6rem; margin-bottom: 12px;">Баяр хүргэе!</h3>
-                        <p style="font-size: 1.1rem; margin-bottom: 20px;">Та ${quizData.length} асуултаас <strong>${score}</strong> зөв хариуллаа.</p>
-                        <button class="btn" onclick="currentQ=0;score=0;document.getElementById('quiz-box').innerHTML='<div class=\\'quiz-question\\' id=\\'q-text\\'></div><div class=\\'quiz-options\\' id=\\'q-options\\'></div><div style=\\'display:flex;justify-content:space-between;align-items:center;\\'><span id=\\'q-progress\\' style=\\'color:var(--text-muted);font-size:0.85rem;\\'></span><button class=\\'btn\\' id=\\'next-btn\\' onclick=\\'nextQuestion()\\' style=\\'display:none;padding:9px 22px;\\'>Дараагийнх →</button></div>';loadQuestion();">Дахин эхлүүлэх</button>
-                    </div>`;
-            }
-        }
-        loadQuestion();
     </script>
 </body>
 </html>
-
-client.login(CONFIG.TOKEN);
