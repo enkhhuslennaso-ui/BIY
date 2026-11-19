@@ -1,468 +1,1170 @@
-function getStepLogger(manager) {
-    try {
-        if (manager && typeof manager.getLogger === "function") {
-            return manager.getLogger();
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ч.Галсан - Аянгат Цагийн Тууж | 3-р Баг</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-dark: #03060e;
+            --card-bg: rgba(10, 17, 32, 0.75);
+            --primary: #38bdf8;
+            --secondary: #818cf8;
+            --gold: #fbbf24;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
         }
-    }
-    catch (_error) {
-        // Ignore and fall back to console logger.
-    }
-    return {
-        info: function (message) { if (typeof console !== "undefined" && console.log) { console.log(message); } },
-        warn: function (message) { if (typeof console !== "undefined" && console.warn) { console.warn(message); } },
-        error: function (message) { if (typeof console !== "undefined" && console.error) { console.error(message); } },
-        severe: function (message) { if (typeof console !== "undefined" && console.error) { console.error(message); } }
-    };
-}
 
-/**
- * STEP Business Rule
- * Trademark: AI Labz Ltd (TM)
- * Purpose: Describe the rule intent and expected side effects.
- * Notes: Keep transactions short and avoid repeated writes in loops.
- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-const {
-    Client,
-    GatewayIntentBits,
-    Partials,
-    EmbedBuilder,
-    ActionRowBuilder,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    ChannelType,
-    PermissionsBitField,
-    AttachmentBuilder,
-    ActivityType
-} = require('discord.js');
+        html {
+            scroll-behavior: smooth;
+        }
 
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
 
-app.get('/', (req, res) => {
-    res.send('🚀 CS2 Clan Bot is running 24/7!');
-});
+        /* 3D Canvas & Flash */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none; /* Утсан дээр гүйлгэхэд саад болохгүй */
+        }
 
-app.listen(PORT, () => {
-    console.log(`🌐 Web server is running on port ${PORT}`);
-});
+        #lightning-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(224, 242, 254, 0.4), rgba(56, 189, 248, 0.15));
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+            transition: opacity 0.06s ease-out;
+        }
 
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildVoiceStates
-    ],
-    partials: [Partials.Message, Partials.Channel, Partials.GuildMember]
-});
+        /* HUD Scene Indicator */
+        #scene-hud {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10, 17, 32, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            padding: 10px 16px;
+            border-radius: 30px;
+            z-index: 150;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #7dd3fc;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
 
-// ==========================================
-// ⚙️ СЕРВЕРИЙН БҮХ ID-НУУД
-// ==========================================
-const CONFIG = {
-    TOKEN: process.env.TOKEN || 'ТАНЫ_БОТЫН_TOKEN',
-    GUILD_ID: '1571166756355969134',
-    ADMIN_ROLE_ID: '1571166796873080965',
-    AUTO_ROLE_ID: null,
+        .hud-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #38bdf8;
+            box-shadow: 0 0 10px #38bdf8;
+            animation: pulse 1.5s infinite;
+        }
 
-    // CS2 болон Тоглоомын Role ID-нууд
-    ROLE_AWP: 'AWP_ROLE_ID',               // Хэрэв CS2 байрлал хэрэгтэй бол ID-гаа энд тавина
-    ROLE_RIFLER: 'RIFLER_ROLE_ID',
-    ROLE_IGL: 'IGL_ROLE_ID',
-    ROLE_SUPPORT: 'SUPPORT_ROLE_ID',
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; }
+        }
 
-    // Шинэ тоглоомын Role ID-нууд
-    ROLE_CS: '1571357618398699640',       // Counter Strike
-    ROLE_VAL: '1571357785638051900',      // Valorant
-    ROLE_MC: '1571357701621940315',       // Minecraft
-    ROLE_RBX: '1571357855561420920',      // Roblox
+        /* Progress Bar */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--gold));
+            width: 0%;
+            z-index: 200;
+        }
 
-    // Channel & Category ID-нууд
-    TICKET_CATEGORY_ID: '1571213412032188626',
-    WELCOME_CHANNEL_ID: '1571197629616889946',
-    MEMBER_LOG_ID: '1571355846431084554',
-    TEXT_LOG_ID: '1571216197473533972',
-    VOICE_LOG_ID: '1571216312309387476',
-    TICKET_LOG_ID: '1571216472095727716',
-    MOD_LOG_ID: '1571216408073736333'
-};
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(3, 6, 14, 0.85);
+            backdrop-filter: blur(18px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+        }
 
-/**
- * STEP business rule function: formatTime.
- * TODO: Describe purpose, side effects, and expected node/context state.
- * @param {*} timestamp
- */
-function formatTime(timestamp) {
-    return `<t:${Math.floor(timestamp / 1000)}:F> (<t:${Math.floor(timestamp / 1000)}:R>)`;
-}
+        .logo {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+            letter-spacing: 1.5px;
+        }
 
-client.once('ready', () => {
-    console.log(`✅ ${client.user.tag} амжилттай аслаа!`);
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
 
-    /**
- * STEP business rule function: updateStatus.
- * TODO: Describe purpose, side effects, and expected node/context state.
- */
-    const updateStatus = () => {
-        const guild = client.guilds.cache.get(CONFIG.GUILD_ID);
-        const count = guild ? guild.memberCount : 0;
-        client.user.setActivity(`CS2 Clan | ${count} гишүүн`, { type: ActivityType.Watching });
-    };
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.83rem;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
 
-    updateStatus();
-    setInterval(updateStatus, 60000);
-});
+        .nav-links a:hover {
+            color: var(--primary);
+        }
 
-// ==========================================
-// 1. WELCOME & MEMBER LOGS
-// ==========================================
-client.on('guildMemberAdd', async (member) => {
-    if (CONFIG.AUTO_ROLE_ID) {
-        member.roles.add(CONFIG.AUTO_ROLE_ID).catch(() => {});
-    }
+        /* Sections */
+        section {
+            min-height: 100vh;
+            padding: 100px 7% 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
 
-    const welcomeChannel = member.guild.channels.cache.get(CONFIG.WELCOME_CHANNEL_ID);
-    if (welcomeChannel) {
-        const welcomeEmbed = new EmbedBuilder()
-            .setColor('#00FF88')
-            .setTitle(`🎮 ТАВТАЙ МОРИЛ, ${member.user.username.toUpperCase()}!`)
-            .setDescription(
-                `**${member.guild.name}** серверт тавтай морил!\n\n` +
-                `📜 Суваг дахь дүрэмтэй танилцана уу.\n` +
-                `🎯 Кланд элсэх бол Ticket нээж хүсэлтээ илгээнэ үү.`
-            )
-            .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 256 }))
-            .addFields(
-                { name: '👤 Гишүүн', value: `${member}`, inline: true },
-                { name: '👥 Нийт гишүүд', value: `${member.guild.memberCount}`, inline: true }
-            )
-            .setFooter({ text: 'GL & HF!' })
-            .setTimestamp();
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            align-items: center;
+        }
 
-        welcomeChannel.send({ content: `${member}`, embeds: [welcomeEmbed] }).catch(() => {});
-    }
+        .badge-top {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #7dd3fc;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+        }
 
-    const memberLog = member.guild.channels.cache.get(CONFIG.MEMBER_LOG_ID);
-    if (memberLog) {
-        const logEmbed = new EmbedBuilder()
-            .setColor('#2ECC71')
-            .setAuthor({ name: 'Шинэ гишүүн орж ирлээ', iconURL: member.user.displayAvatarURL() })
-            .setDescription(`${member} (\`${member.user.tag}\`)\n**Огноо:** ${formatTime(member.user.createdTimestamp)}`)
-            .setTimestamp();
-        memberLog.send({ embeds: [logEmbed] }).catch(() => {});
-    }
-});
+        .hero h3 {
+            color: var(--text-muted);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-size: 1.05rem;
+            margin-bottom: 10px;
+        }
 
-client.on('guildMemberRemove', async (member) => {
-    const memberLog = member.guild.channels.cache.get(CONFIG.MEMBER_LOG_ID);
-    if (memberLog) {
-        const logEmbed = new EmbedBuilder()
-            .setColor('#E74C3C')
-            .setAuthor({ name: 'Гишүүн гарлаа', iconURL: member.user.displayAvatarURL() })
-            .setDescription(`${member.user.tag} (\`${member.id}\`)`)
-            .setTimestamp();
-        memberLog.send({ embeds: [logEmbed] }).catch(() => {});
-    }
-});
+        .hero h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 4.2rem;
+            font-weight: 900;
+            background: linear-gradient(to right, #ffffff, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(56, 189, 248, 0.35);
+            margin-bottom: 22px;
+            line-height: 1.15;
+        }
 
-// ==========================================
-// 2. TEXT & IMAGE LOGS
-// ==========================================
-client.on('messageDelete', async (message) => {
-    if (!message.guild || message.author?.bot) return;
-    const textLog = message.guild.channels.cache.get(CONFIG.TEXT_LOG_ID);
-    if (!textLog) return;
+        .hero p {
+            max-width: 750px;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #cbd5e1;
+            margin-bottom: 35px;
+        }
 
-    const embed = new EmbedBuilder()
-        .setColor('#E74C3C')
-        .setAuthor({ name: `${message.author.tag} мессеж устгалаа`, iconURL: message.author.displayAvatarURL() })
-        .addFields(
-            { name: '📍 Суваг', value: `${message.channel}`, inline: true },
-            { name: '💬 Текст', value: message.content ? message.content.slice(0, 1024) : '*Зураг/Файл*' }
-        );
+        .hero-btns {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
 
-    const files = [];
-    if (message.attachments.size > 0) {
-        message.attachments.forEach((att) => {
-            files.push(new AttachmentBuilder(att.proxyURL, { name: att.name }));
+        .btn {
+            padding: 14px 32px;
+            background: linear-gradient(45deg, #0284c7, #4f46e5);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.92rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.8);
+        }
+
+        .btn-outline {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--primary);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: rgba(56, 189, 248, 0.2);
+        }
+
+        /* Section Titles */
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: #f8fafc;
+            margin-bottom: 8px;
+            border-left: 5px solid var(--primary);
+            padding-left: 18px;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            padding-left: 23px;
+            font-size: 0.95rem;
+        }
+
+        /* Grid & Cards */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            border-radius: 16px;
+            padding: 26px;
+            transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: var(--primary);
+            box-shadow: 0 12px 30px rgba(2, 132, 199, 0.22);
+        }
+
+        .card h4 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #cbd5e1;
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+
+        /* Author Box */
+        .author-box {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 18px;
+            padding: 32px;
+            align-items: center;
+        }
+
+        .author-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            background: rgba(3, 6, 14, 0.7);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+        }
+
+        .stat-item h5 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 4px;
+        }
+
+        .stat-item span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 18px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--gold));
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 55px;
+            margin-bottom: 35px;
+            opacity: 0.6;
+            transform: translateY(12px);
+            transition: all 0.4s ease;
+        }
+
+        .timeline-item.active-stage {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 9px;
+            top: 4px;
+            width: 21px;
+            height: 21px;
+            border-radius: 50%;
+            background: var(--bg-dark);
+            border: 4px solid var(--primary);
+            box-shadow: 0 0 12px var(--primary);
+            transition: all 0.3s;
+        }
+
+        .timeline-item.active-stage .timeline-dot {
+            background: var(--primary);
+            transform: scale(1.2);
+        }
+
+        .timeline-content {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            border-radius: 15px;
+            padding: 26px 30px;
+            transition: all 0.3s;
+        }
+
+        .timeline-item.active-stage .timeline-content {
+            border-color: var(--primary);
+            box-shadow: 0 8px 30px rgba(56, 189, 248, 0.18);
+        }
+
+        .timeline-step {
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .timeline-content h4 {
+            font-size: 1.25rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .timeline-content p {
+            color: #cbd5e1;
+            line-height: 1.7;
+            font-size: 0.92rem;
+        }
+
+        /* Quotes */
+        .quote-card {
+            border-left: 4px solid var(--gold);
+            font-style: italic;
+        }
+
+        .quote-card p {
+            font-size: 1rem;
+            color: #f8fafc;
+            margin-bottom: 10px;
+        }
+
+        .quote-author {
+            color: var(--gold);
+            font-style: normal;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        /* Quiz */
+        .quiz-container {
+            max-width: 750px;
+            margin: 0 auto;
+            width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 18px;
+            padding: 30px;
+        }
+
+        .quiz-question {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            color: #fff;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .quiz-option {
+            padding: 14px 18px;
+            background: rgba(3, 6, 14, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: #e2e8f0;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.92rem;
+            transition: all 0.25s;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: rgba(56, 189, 248, 0.12);
+        }
+
+        .quiz-option.correct {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .quiz-option.wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        /* Team */
+        .filter-btns {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 7px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #cbd5e1;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary);
+            color: #03060e;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .team-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 15px;
+            padding: 24px 18px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .team-card.creator {
+            border: 1.5px solid var(--gold);
+            background: linear-gradient(145deg, rgba(251, 191, 36, 0.14), rgba(10, 17, 32, 0.85));
+            box-shadow: 0 0 22px rgba(251, 191, 36, 0.22);
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .team-card.creator .role-badge {
+            background: rgba(251, 191, 36, 0.25);
+            color: var(--gold);
+        }
+
+        .team-card h3 {
+            font-size: 1.25rem;
+            color: #ffffff;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .team-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(3, 6, 14, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: #64748b;
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ================= RESPONSIVE DESIGN (БҮХ ТӨХӨӨРӨМЖИД) ================= */
+        @media (max-width: 1024px) {
+            .hero h1 { font-size: 3.4rem; }
+            .author-box { grid-template-columns: 1fr; padding: 25px; }
+            section { padding: 90px 5% 50px; }
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 12px 4%; }
+            .nav-links { display: none; } /* Гар утсан дээр дээд цэсийг хурааж зай гаргана */
+            .logo { font-size: 1.1rem; }
+            .hero h1 { font-size: 2.3rem; line-height: 1.2; }
+            .hero p { font-size: 0.92rem; padding: 0 5px; }
+            .hero-btns { flex-direction: column; width: 100%; gap: 10px; }
+            .btn { width: 100%; text-align: center; padding: 13px 18px; }
+            .grid, .team-grid { grid-template-columns: 1fr; gap: 16px; }
+            .card, .timeline-content, .author-box, .quiz-container { padding: 18px; }
+            #scene-hud { bottom: 10px; right: 10px; left: 10px; justify-content: center; font-size: 0.7rem; padding: 7px 10px; text-align: center; }
+            .timeline::before { left: 14px; }
+            .timeline-item { padding-left: 45px; }
+            .timeline-dot { left: 6px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 1.95rem; }
+            .section-title { font-size: 1.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="scroll-progress"></div>
+    <div id="lightning-flash"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="scene-hud">
+        <span class="hud-dot" id="hud-dot"></span>
+        <span id="hud-text">3D Үзэгдэл: Алтайн Амгалан Уулс</span>
+    </div>
+
+    <nav>
+        <div class="logo">3-Р БАГ • УРАН ЗОХИОЛ</div>
+        <div class="nav-links">
+            <a href="#author">Зохиолч</a>
+            <a href="#plot">Үйл явдал</a>
+            <a href="#characters">Дүрүүд</a>
+            <a href="#analysis">Задлал</a>
+            <a href="#quiz">Тест</a>
+            <a href="#team">Баг</a>
+        </div>
+    </nav>
+
+    <!-- 1. HERO -->
+    <section class="hero" data-scene="0">
+        <div class="badge-top">Уран Зохиол • 3-р Багийн Бүтээл</div>
+        <h3>Чинагийн Галсан</h3>
+        <h1>АЯНГАТ ЦАГИЙН ТУУЖ</h1>
+        <p>Ямар ч утас, таблет, компьютер дээр төгс ажиллах ба хуудсыг доош гүйлгэхэд 3D орчин зохиолын үйл явдлын өрнөлтэй хамт амьдаар хувирдаг интерактив вэб сайт.</p>
+        <div class="hero-btns">
+            <a href="#plot" class="btn">Үйл явдлын аялал эхлүүлэх</a>
+            <a href="#team" class="btn btn-outline">3-р багийн бүрэлдэхүүн</a>
+        </div>
+    </section>
+
+    <!-- 2. AUTHOR -->
+    <section id="author" data-scene="0">
+        <div class="section-header">
+            <h2 class="section-title">1. Зохиолчийн Тухай</h2>
+            <p class="section-subtitle">Монгол болон Герман хэлээр туурвигч дэлхийд танигдсан их зохиолч</p>
+        </div>
+
+        <div class="author-box">
+            <div class="author-stats">
+                <div class="stat-item">
+                    <h5>1944</h5>
+                    <span>Баян-Өлгий, Цэнгэл сум</span>
+                </div>
+                <div class="stat-item">
+                    <h5>40+</h5>
+                    <span>Ном бүтээл</span>
+                </div>
+                <div class="stat-item">
+                    <h5>СГЗ</h5>
+                    <span>Соёлын Гавьяат Зүтгэлтэн</span>
+                </div>
+                <div class="stat-item">
+                    <h5>Төрийн</h5>
+                    <span>Шагналт зохиолч</span>
+                </div>
+            </div>
+            <div>
+                <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 12px;">Чинагийн Галсан (Иргит Шыныкай-оглу Галсан)</h3>
+                <p style="color: #cbd5e1; line-height: 1.75; margin-bottom: 12px; font-size: 0.95rem;">
+                    Ч.Галсан нь Монголын баруун хязгаар Алтайн уулсад төрж өссөн тува үндэстний нэрт зохиолч юм. Тэрээр Германы Лайпцигийн их сургуулийг дүүргэж, уран бүтээлээ монгол болон герман хэлээр туурвин Европын уншигчдад Монголын нүүдэлчдийн соёл, Алтайн байгаль, тува түмний ахуй амьдралыг таниулсан билээ.
+                </p>
+                <p style="color: #94a3b8; line-height: 1.65; font-size: 0.9rem;">
+                    Түүний <strong>"Аянгат цагийн тууж"</strong> зохиол нь хүний дотоод ертөнц, байгаль эх ба нийгмийн шилжилтийн зөрчлийг уран яруу, гүн гүнзгий философийн өнгө аястайгаар дүрсэлсэн шилдэг бүтээл юм.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. PLOT SUMMARY (3D DYNAMIC STAGES) -->
+    <section id="plot">
+        <div class="section-header">
+            <h2 class="section-title">2. Үйл Явдлын Дэлгэрэнгүй Товчлол</h2>
+            <p class="section-subtitle">Доош гүйлгэхэд 3D орчин үйл явдал бүртэй хамт өөрчлөгдөнө</p>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item active-stage" data-stage="1">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-step">I Үе • Эхлэл (3D: Амгалан Алтай)</span>
+                    <h4>Алтайн Уулсын Амгалан Ахуй ба Өвөг Дээдсийн Ёс</h4>
+                    <p>Зохиолын эхэнд Алтайн сүрлэг уулсын бэлд нүүдэллэн амьдрах тува малчдын амгалан тайван амьдралыг дүрсэлнэ. Тэд уул ус, тэнгэр хангайгаа амьд мэт шүтэн дээдэлж, байгалийн жам ёсоор аж төрдөг. Гол дүрийн баатруудын хүүхэд нас, гэр бүлийн халуун дулаан уур амьсгал, байгальтайгаа ярилцах мэт нандин холбоо энд тод харагдана.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-stage="2">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-step">II Үе • Зангилаа (3D: Үүл Хуралдах Мөч)</span>
+                    <h4>Шинэ Цагийн Салхи ба Үл Ойлголцлын Эхлэл</h4>
+                    <p>Алтайн алслагдсан нутагт нийгмийн шинэ тогтолцоо, суурин соёл иргэншил, гаднын хатуу дүрэм журам нэвтэрч эхэлснээр уламжлалт амьдралын хэв маягт өөрчлөлт орно. Хүүхдүүдийг сургуульд сургах, мал сүргийг нийгэмчлэх зэрэг үйл явдлууд нь өвөг дээдсийнхээ ёс заншлыг хадгалах гэсэн ахмад үеийнхэн болон шинэ цагийг дагах гэсэн залуу үеийн хооронд зөрчил үүсгэнэ.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-stage="2">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-step">III Үе • Өрнөл (3D: Ширүүн Шуурга)</span>
+                    <h4>Хүний Мөс Чанар ба Хатуу Сорилт</h4>
+                    <p>Цаг үеийн ширүүн өөрчлөлтийн дунд хүмүүсийн жинхэнэ мөн чанар танигдаж эхэлнэ. Байгаль дэлхийн хатуу ширүүн уур амьсгал, зуд турхан, мөн нийгмийн дарамт шахалт давхцан хүмүүсийг хүнд байдалд оруулна. Энэ үед зарим хүмүүс ашиг хонжооны төлөө урваж байхад, жинхэнэ хүн чанартай нэгэн нь зовлон бэрхшээлийг сөрөн зогсоно.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-stage="3">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-step">IV Үе • Туйл / Оргил (3D: Аянга Ниргэх Мөч)</span>
+                    <h4>Аянга Ниргэх Мөч — Сэтгэлийн Шуурга</h4>
+                    <p>Тэнгэрт хуралдсан хар үүл задарч, аянга цахилгаан ниргэх тэрхүү аймшигт байгалийн үзэгдэлтэй зэрэгцэн зохиолын баатруудын хувь заяаны хамгийн эгзэгтэй мөч тохионо. Энэ бол зөвхөн тэнгэрийн аянга бус, хүний дотоод сэтгэл, итгэл үнэмшил, амьдралыг орвонгоор нь эргүүлсэн сэтгэл зүйн "аянга" байлаа.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item" data-stage="4">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-step">V Үе • Тайлал (3D: Шуурганы Дараах Цэлмэг Тэнгэр)</span>
+                    <h4>Шуурганы Дараах Цэлмэг Тэнгэр ба Ухаарал</h4>
+                    <p>Аянгат аадар бороо өнгөрсний дараа агаар цэвэршиж, Алтайн уулс улам өнгө орон гэрэлтдэг шиг хүмүүсийн сэтгэлд ч гүн ухаарал, ариуслал үлдэнэ. Зовлон бэрхшээлийг туулсан ч хүн гэдэг амьтан байгаль эхтэйгээ зохицон амьдарч, өвөг дээдсийнхээ ухааныг тээж явбал ямар ч "аянгат цагийг" даван туулж чадна.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. CHARACTERS -->
+    <section id="characters" data-stage="4">
+        <div class="section-header">
+            <h2 class="section-title">3. Дүрийн Тогтолцоо</h2>
+            <p class="section-subtitle">Зохиолын гол санааг тээгч дүрүүдийн онцлог</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h4>🏔️ Гол Баатар (Хүү / Залуу)</h4>
+                <p>Хоёр цаг үеийн зааг дээр өсөж буй дүр. Тэрээр өвөг дээдсийнхээ ёс заншил, байгаль дэлхийгээ хайрлах сэтгэлийг өвлөсөн ба шинэ цагийн боөрчлөлттэй нүүр тулж дотоод зөрчил дундаас үнэнийг олдог.</p>
+            </div>
+            <div class="card">
+                <h4>🦅 Ахмад Үе (Өвөг Эцэг / Эцэг)</h4>
+                <p>Алтайн уулсын амьд түүх, мэргэн ухааны уурхай болсон дүрүүд. Тэд байгаль дэлхийн ааш аягийг урьдчилан мэдэрч, хүн чанар, ёс жудгаа алдахгүй байхыг сургадаг.</p>
+            </div>
+            <div class="card">
+                <h4>⚡ Цаг Үеийг Дагагчид</h4>
+                <p>Шинэ дэг журам, албан тушаалын төлөө уламжлалт өв соёл, хүн чанарыг үл ойшоогч дүрүүд. Зохиолч тэднээр дамжуулан хүний мөс чанарын сүүдэр талыг шүүмжилсэн.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. ANALYSIS & QUOTES -->
+    <section id="analysis" data-stage="4">
+        <div class="section-header">
+            <h2 class="section-title">4. Уран Сайхны Задлал</h2>
+            <p class="section-subtitle">Зохиолын гүн утга, бэлгэдэл зүй</p>
+        </div>
+
+        <div class="grid" style="margin-bottom: 30px;">
+            <div class="card">
+                <h4>⚡ "Аянгат цаг" нэрийн утга</h4>
+                <p>Аянга нь гэнэтийн цохилт авчирдаг ч бохирдсон агаарыг цэвэршүүлж амьдрал бэлэглэдэг. Энэ нь нийгэм болон хүний сэтгэлийг сорьж, цэвэршүүлэх эгзэгтэй үеийг бэлгэднэ.</p>
+            </div>
+            <div class="card">
+                <h4>🌿 Байгаль ба Хүний Ижилсэл</h4>
+                <p>Ч.Галсан байгалийн үзэгдлийг хүний сэтгэл зүйтэй гайхалтай уялдуулдаг. Сэтгэл гуниглахад тэнгэр бүрхэж, зөрчил хурцдахад аянга ниргэдэг нь туужийн уран сайхны гол онцлог юм.</p>
+            </div>
+            <div class="card">
+                <h4>💡 Зохиолын Гол Сургамж</h4>
+                <p>Нийгэм хэрхэн өөрчлөгдсөн ч хүн өөрийн хүн чанар, өв соёл, эх байгалиа хайрлах сэтгэлээ гээхгүй байх нь амьдралын хамгийн том үнэ цэнэ юм.</p>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card quote-card">
+                <p>"Тэнгэрийн аянга газар дэлхийг цэвэрлэдэг шиг, цаг үеийн шуурга хүний сэтгэлийн хирийг угааж, жинхэнэ мөн чанарыг нь үлдээдэг."</p>
+                <span class="quote-author">— Зохиолын гол санаанаас</span>
+            </div>
+            <div class="card quote-card">
+                <p>"Хүн байгалиас тасарвал үндэсгүй модтой адил. Ямар ч хүчтэй салхинд булга татагдан унана."</p>
+                <span class="quote-author">— Ч.Галсангийн философи</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. QUIZ -->
+    <section id="quiz" data-stage="4">
+        <div class="section-header">
+            <h2 class="section-title">5. Мэдлэг Шалгах Тест</h2>
+            <p class="section-subtitle">Зохиолын агуулгыг хэр сайн ойлгосноо шалгаарай</p>
+        </div>
+
+        <div class="quiz-container">
+            <div id="quiz-box">
+                <div class="quiz-question" id="q-text">Асуулт ачаалж байна...</div>
+                <div class="quiz-options" id="q-options"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span id="q-progress" style="color: var(--text-muted); font-size: 0.85rem;">1 / 3</span>
+                    <button class="btn" id="next-btn" onclick="nextQuestion()" style="display: none; padding: 9px 22px;">Дараагийнх →</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. TEAM (9 MEMBERS) -->
+    <section id="team" data-stage="4">
+        <div class="section-header">
+            <h2 class="section-title">6. 3-р Багийн Бүрэлдэхүүн (9 Гишүүн)</h2>
+            <p class="section-subtitle">Төслийг хамтран бүтээсэн багийн гишүүд болон тэдний гүйцэтгэсэн үүрэг</p>
+        </div>
+
+        <div class="filter-btns">
+            <button class="filter-btn active" onclick="filterTeam('all', this)">Бүгд (9)</button>
+            <button class="filter-btn" onclick="filterTeam('dev', this)">Вэб Хөгжүүлэгч</button>
+            <button class="filter-btn" onclick="filterTeam('speaker', this)">Илтгэгчид</button>
+            <button class="filter-btn" onclick="filterTeam('analyst', this)">Эх Задлагчид</button>
+        </div>
+
+        <div class="team-grid" id="team-grid">
+            <div class="team-card creator" data-role="dev">
+                <span class="role-badge">★ Вэб Хөгжүүлэгч & Дизайнер</span>
+                <h3>ЭНХХҮСЛЭН</h3>
+                <p>Python Flask сервер, Render 24/7 тохиргоо болон 3D scrollytelling вэб кодыг бүрэн бүтээсэн.</p>
+            </div>
+
+            <div class="team-card" data-role="speaker">
+                <span class="role-badge">Гол Илтгэгч</span>
+                <h3>АНУЖИН</h3>
+                <p>Зохиолын үйл явдлын товчлолыг анги хамт олонд системтэйгээр танилцуулан илтгэгч.</p>
+            </div>
+
+            <div class="team-card" data-role="speaker">
+                <span class="role-badge">Илтгэгч & Судлаач</span>
+                <h3>ЦАГААНЦЭЦЭГ</h3>
+                <p>Зохиолч Ч.Галсангийн намтар, уран бүтээлийн онцлогийг судалж танилцуулагч.</p>
+            </div>
+
+            <div class="team-card" data-role="speaker">
+                <span class="role-badge">Илтгэгч & Дүгнэгч</span>
+                <h3>ЭНХЖИН</h3>
+                <p>Зохиолын тайлал хэсэг болон багийн нэгдсэн дүгнэлт, сургамжийг танилцуулагч.</p>
+            </div>
+
+            <div class="team-card" data-role="analyst">
+                <span class="role-badge">Эх Задлагч</span>
+                <h3>ЗОЛЗАЯА</h3>
+                <p>Зохиолын гол санаа, бэлгэдэл зүй болон уран сайхны задлалыг боловсруулсан.</p>
+            </div>
+
+            <div class="team-card" data-role="analyst">
+                <span class="role-badge">Үйл Явдал Товчлогч</span>
+                <h3>МӨНХ-ОРГИЛ</h3>
+                <p>Зохиолын эхлэл болон зангилаа хэсгийн үйл явдлыг уншиж товчилсон.</p>
+            </div>
+
+            <div class="team-card" data-role="analyst">
+                <span class="role-badge">Дүрийн Шинжээч</span>
+                <h3>СҮЛДБАЯР</h3>
+                <p>Гол болон туслах дүрүүдийн зан төлөв, сэтгэл зүйн онцлогийг задлан шинжилсэн.</p>
+            </div>
+
+            <div class="team-card" data-role="analyst">
+                <span class="role-badge">Үйл Явдал Товчлогч</span>
+                <h3>СҮХБОЛД</h3>
+                <p>Зохиолын өрнөл болон туйл хэсгийн гол үйл явдлуудыг нэгтгэн боловсруулсан.</p>
+            </div>
+
+            <div class="team-card" data-role="analyst">
+                <span class="role-badge">Эх Задлагч</span>
+                <h3>ЭНХЛЭН</h3>
+                <p>Зохиолын хэл найруулга, уран дүрслэл болон байгалийн зураглалыг задлагч.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 Уран Зохиол — 3-р Баг ("Аянгат цагийн тууж"). Вэб бүтээсэн: <strong>ЭНХХҮСЛЭН</strong></p>
+    </footer>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        /* ================= 3D STORYTELLING WORLD ================= */
+        const canvas = document.getElementById('bg-canvas');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x03060e, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 14, 42);
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Mountain Terrain
+        const terrainGeo = new THREE.PlaneGeometry(140, 140, 60, 60);
+        terrainGeo.rotateX(-Math.PI / 2);
+        const posAttr = terrainGeo.attributes.position;
+        for (let i = 0; i < posAttr.count; i++) {
+            const x = posAttr.getX(i);
+            const z = posAttr.getZ(i);
+            const dist = Math.sqrt(x * x + z * z);
+            let h = Math.sin(x * 0.12) * Math.cos(z * 0.12) * 8;
+            if (dist > 15) h += (dist - 15) * 0.35;
+            posAttr.setY(i, h - 10);
+        }
+        terrainGeo.computeVertexNormals();
+
+        const terrainMat = new THREE.MeshStandardMaterial({
+            color: 0x0284c7,
+            emissive: 0x0369a1,
+            emissiveIntensity: 0.35,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.55
         });
-        embed.addFields({ name: '📎 Устгасан зураг', value: `${message.attachments.size} файл хавсаргав.` });
-    }
+        const mountainMesh = new THREE.Mesh(terrainGeo, terrainMat);
+        scene.add(mountainMesh);
 
-    textLog.send({ embeds: [embed], files: files }).catch(() => {});
-});
+        // Core Orb
+        const coreGroup = new THREE.Group();
+        coreGroup.position.set(0, 8, -10);
+        scene.add(coreGroup);
 
-client.on('messageUpdate', async (oldMsg, newMsg) => {
-    if (!oldMsg.guild || oldMsg.author?.bot || oldMsg.content === newMsg.content) return;
-    const textLog = oldMsg.guild.channels.cache.get(CONFIG.TEXT_LOG_ID);
-    if (!textLog) return;
+        const orbGeo = new THREE.IcosahedronGeometry(4.5, 2);
+        const orbMat = new THREE.MeshStandardMaterial({
+            color: 0x38bdf8,
+            emissive: 0x0284c7,
+            emissiveIntensity: 0.8,
+            wireframe: true
+        });
+        const orbMesh = new THREE.Mesh(orbGeo, orbMat);
+        coreGroup.add(orbMesh);
 
-    const embed = new EmbedBuilder()
-        .setColor('#F1C40F')
-        .setAuthor({ name: `${oldMsg.author.tag} мессеж заслаа`, iconURL: oldMsg.author.displayAvatarURL() })
-        .addFields(
-            { name: '📍 Суваг', value: `${oldMsg.channel}`, inline: false },
-            { name: '📝 Өмнөх', value: oldMsg.content ? oldMsg.content.slice(0, 1024) : '*Хоосон*' },
-            { name: '✏️ Шинэ', value: newMsg.content ? newMsg.content.slice(0, 1024) : '*Хоосон*' }
-        )
-        .setTimestamp();
+        // Shockwave
+        const shockGeo = new THREE.RingGeometry(1, 1.4, 64);
+        shockGeo.rotateX(-Math.PI / 2);
+        const shockMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+        const shockwave = new THREE.Mesh(shockGeo, shockMat);
+        shockwave.position.set(0, -5, -5);
+        scene.add(shockwave);
 
-    textLog.send({ embeds: [embed] }).catch(() => {});
-});
-
-// ==========================================
-// 3. VOICE & SCREEN SHARE LOGS
-// ==========================================
-client.on('voiceStateUpdate', async (oldState, newState) => {
-    const voiceLog = newState.guild.channels.cache.get(CONFIG.VOICE_LOG_ID);
-    if (!voiceLog || newState.member.user.bot) return;
-
-    const member = newState.member;
-    let action = '';
-    let color = '#3498DB';
-
-    if (!oldState.channelId && newState.channelId) {
-        action = `📥 **${newState.channel.name}** сувагт орлоо.`;
-        color = '#2ECC71';
-    } else if (oldState.channelId && !newState.channelId) {
-        action = `📤 **${oldState.channel.name}** сувгаас гарлаа.`;
-        color = '#E74C3C';
-    } else if (oldState.channelId !== newState.channelId) {
-        action = `🔄 **${oldState.channel.name}** ➔ **${newState.channel.name}** руу шилжлээ.`;
-        color = '#F39C12';
-    } else if (!oldState.streaming && newState.streaming) {
-        action = `🖥️ **${newState.channel.name}** өрөөнд **ДЭЛГЭЦЭЭ SHARE ХИЙЛЭЭ** (Stream ON).`;
-        color = '#9B59B6';
-    } else if (oldState.streaming && !newState.streaming) {
-        action = `⏹️ **${newState.channel.name}** өрөөнд дэлгэц Share зогсоолоо.`;
-        color = '#95A5A6';
-    }
-
-    if (!action) return;
-
-    const embed = new EmbedBuilder()
-        .setColor(color)
-        .setAuthor({ name: member.user.tag, iconURL: member.user.displayAvatarURL() })
-        .setDescription(`${member} ${action}\n🕒 **Цаг:** ${formatTime(Date.now())}`);
-
-    voiceLog.send({ embeds: [embed] }).catch(() => {});
-});
-
-// ==========================================
-// 4. ADMIN COMMANDS & PANELS
-// ==========================================
-client.on('messageCreate', async (message) => {
-    if (!message.guild || message.author.bot) return;
-
-    const isAdmin = message.member.permissions.has(PermissionsBitField.Flags.Administrator);
-
-    // Auto-Mod: Discord invite link хамгаалалт
-    if (!isAdmin && /(discord\.gg\/|discord\.com\/invite\/)/i.test(message.content)) {
-        await message.delete().catch(() => {});
-        const warn = await message.channel.send(`⚠️ ${message.author}, серверийн урилга линк явуулахыг хориглоно!`);
-        setTimeout(() => warn.delete().catch(() => {}), 5000);
-        return;
-    }
-
-    const args = message.content.trim().split(/ +/);
-    const command = args.shift().toLowerCase();
-
-    if (command === '!ping') {
-        const msg = await message.reply('🏓 Шалгаж байна...');
-        msg.edit(`🏓 Pong! Ботын хурд: **${client.ws.ping}ms**`);
-    }
-
-    if (command === '!clear' && isAdmin) {
-        const count = parseInt(args[0]);
-        if (!count || count < 1 || count > 100) return message.reply('⚠️ 1-ээс 100 хооронд тоо оруулна уу!');
-        await message.channel.bulkDelete(count, true).catch(() => {});
-        const reply = await message.channel.send(`🧹 **${count}** мессеж устгалаа.`);
-        setTimeout(() => reply.delete().catch(() => {}), 3000);
-    }
-
-    if (command === '!announce' && isAdmin) {
-        const text = args.join(' ');
-        if (!text) return message.reply('⚠️ Зарлалын текстээ бичнэ үү!');
-        await message.delete().catch(() => {});
-        const annEmbed = new EmbedBuilder()
-            .setColor('#FF4655')
-            .setTitle('📣 КЛАНЫ ЗАРЛАЛ')
-            .setDescription(text)
-            .setFooter({ text: `Зарласан: ${message.author.username}` })
-            .setTimestamp();
-        await message.channel.send({ content: '@everyone', embeds: [annEmbed] }).catch(() => {});
-    }
-
-    // Ticket Panel
-    if (command === '!ticket-panel' && isAdmin) {
-        await message.delete().catch(() => {});
-        const panelEmbed = new EmbedBuilder()
-            .setColor('#FF4655')
-            .setTitle('🎫 КЛАН ДЭМЖЛЭГ & ЭЛСЭЛТИЙН ХЭСЭГ')
-            .setDescription('Доорх цэснээс сонгоод **Ticket** нээнэ үү.');
-
-        const selectMenu = new StringSelectMenuBuilder()
-            .setCustomId('create_ticket_menu')
-            .setPlaceholder('👇 Төрлөө сонгоно уу...')
-            .addOptions([
-                { label: 'Кланд элсэх', description: 'Элсэлтийн анкет бөглөх', value: 'join_clan', emoji: '🎯' },
-                { label: 'Гомдол / Мэдээлэх', description: 'Асуудал мэдүүлэх', value: 'report', emoji: '⚠️' },
-                { label: 'Хамтран ажиллах', description: 'Scrim санал', value: 'collab', emoji: '🤝' }
-            ]);
-
-        await message.channel.send({ embeds: [panelEmbed], components: [new ActionRowBuilder().addComponents(selectMenu)] });
-    }
-
-    // 🎮 TOGLOOMUUDIN SELF-ROLE PANEL (!game-panel)
-    if (command === '!game-panel' && isAdmin) {
-        await message.delete().catch(() => {});
-        const gameEmbed = new EmbedBuilder()
-            .setColor('#9B59B6')
-            .setTitle('🎮 ТОГЛООМЫН ЦОЛ СОНГОХ')
-            .setDescription('Доорх товчлуурууд дээр дарж өөрийн тоглодог тоглоомын цолыг авна уу (Дахин дарвал хасагдана):');
-
-        const gameButtons = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('role_cs').setLabel('Counter-Strike').setStyle(ButtonStyle.Primary).setEmoji('⚡'),
-            new ButtonBuilder().setCustomId('role_val').setLabel('Valorant').setStyle(ButtonStyle.Danger).setEmoji('🎯'),
-            new ButtonBuilder().setCustomId('role_mc').setLabel('Minecraft').setStyle(ButtonStyle.Success).setEmoji('🟩'),
-            new ButtonBuilder().setCustomId('role_rbx').setLabel('Roblox').setStyle(ButtonStyle.Secondary).setEmoji('🟥')
-        );
-
-        await message.channel.send({ embeds: [gameEmbed], components: [gameButtons] });
-    }
-});
-
-// ==========================================
-// 5. INTERACTIONS (TICKETS & GAME ROLES)
-// ==========================================
-client.on('interactionCreate', async (interaction) => {
-    // --- GAME SELF-ROLES ---
-    if (interaction.isButton() && interaction.customId.startsWith('role_')) {
-        const roleMap = {
-            role_cs: CONFIG.ROLE_CS,
-            role_val: CONFIG.ROLE_VAL,
-            role_mc: CONFIG.ROLE_MC,
-            role_rbx: CONFIG.ROLE_RBX
-        };
-
-        const roleId = roleMap[interaction.customId];
-        const role = interaction.guild.roles.cache.get(roleId);
-        if (!role) return interaction.reply({ content: '❌ Энэ Role сервер дээр олдсонгүй!', ephemeral: true });
-
-        if (interaction.member.roles.cache.has(roleId)) {
-            await interaction.member.roles.remove(roleId);
-            return interaction.reply({ content: `➖ **${role.name}** цолыг хаслаа.`, ephemeral: true });
-        } else {
-            await interaction.member.roles.add(roleId);
-            return interaction.reply({ content: `✅ **${role.name}** цолыг амжилттай авлаа!`, ephemeral: true });
+        // Lightning
+        function createLightningBolt(startX, startZ) {
+            const points = [];
+            let cx = startX, cy = 35, cz = startZ;
+            points.push(new THREE.Vector3(cx, cy, cz));
+            for (let i = 0; i < 12; i++) {
+                cx += (Math.random() - 0.5) * 5;
+                cy -= 42 / 12;
+                cz += (Math.random() - 0.5) * 5;
+                points.push(new THREE.Vector3(cx, cy, cz));
+            }
+            const geo = new THREE.BufferGeometry().setFromPoints(points);
+            const mat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
+            return new THREE.Line(geo, mat);
         }
-    }
+        const bolt1 = createLightningBolt(0, -5);
+        const bolt2 = createLightningBolt(-12, -10);
+        scene.add(bolt1, bolt2);
 
-    // --- TICKET CREATION ---
-    if (interaction.isStringSelectMenu() && interaction.customId === 'create_ticket_menu') {
-        const type = interaction.values[0];
-        const typeNames = {
-            join_clan: { prefix: 'clan', title: '🎯 Кланд элсэх хүсэлт', questions: '1. **Нэр / Нас:**\n2. **Faceit / Premier Elo:**\n3. **Steam Link:**' },
-            report: { prefix: 'report', title: '⚠️ Гомдол / Мэдээлэл', questions: '1. **Ямар асуудал:**\n2. **Дэлгэрэнгүй:**' },
-            collab: { prefix: 'collab', title: '🤝 Хамтран ажиллах', questions: '1. **Саналын дэлгэрэнгүй:**' }
-        };
+        // Particles
+        const particleCount = 1800;
+        const particlesGeo = new THREE.BufferGeometry();
+        const posArray = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 130;
+        particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
-        const selected = typeNames[type];
+        const particlesMat = new THREE.PointsMaterial({ size: 0.2, color: 0x7dd3fc, transparent: true, opacity: 0.75 });
+        const particlesMesh = new THREE.Points(particlesGeo, particlesMat);
+        scene.add(particlesMesh);
 
-        const existingChannel = interaction.guild.channels.cache.find(
-            (c) => c.parentId === CONFIG.TICKET_CATEGORY_ID && c.topic === interaction.user.id
-        );
-        if (existingChannel) {
-            return interaction.reply({ content: `❌ Танд аль хэдийн нээлттэй Ticket байна: ${existingChannel}`, ephemeral: true });
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const mainLight = new THREE.PointLight(0x38bdf8, 3, 120);
+        mainLight.position.set(0, 20, 15);
+        scene.add(mainLight);
+
+        const flashOverlay = document.getElementById('lightning-flash');
+
+        // Story Stage Controller
+        let currentStage = 1;
+        let targetColors = { mountain: new THREE.Color(0x0284c7), orb: new THREE.Color(0x38bdf8), particle: new THREE.Color(0x7dd3fc) };
+        let targetCamPos = new THREE.Vector3(0, 14, 42);
+        let rainSpeed = 0.06, windTilt = 0, shakeIntensity = 0, shockScale = 1;
+
+        const hudText = document.getElementById('hud-text');
+        const hudDot = document.getElementById('hud-dot');
+
+        function setStoryStage(stage) {
+            if (currentStage === stage) return;
+            currentStage = stage;
+            if (stage === 1) {
+                targetColors.mountain.setHex(0x0284c7); targetColors.orb.setHex(0x38bdf8); targetColors.particle.setHex(0x7dd3fc);
+                targetCamPos.set(0, 14, 42); rainSpeed = 0.05; windTilt = 0;
+                hudText.innerText = "3D Үзэгдэл: Алтайн Амгалан Уулс (Эхлэл)"; hudDot.style.background = "#38bdf8";
+            } else if (stage === 2) {
+                targetColors.mountain.setHex(0x4f46e5); targetColors.orb.setHex(0x818cf8); targetColors.particle.setHex(0xa5b4fc);
+                targetCamPos.set(4, 10, 32); rainSpeed = 0.35; windTilt = 0.12;
+                hudText.innerText = "3D Үзэгдэл: Хар Үүл ба Шуурга (Зангилаа)"; hudDot.style.background = "#818cf8";
+            } else if (stage === 3) {
+                targetColors.mountain.setHex(0x38bdf8); targetColors.orb.setHex(0xffffff); targetColors.particle.setHex(0xe0f2fe);
+                targetCamPos.set(-3, 8, 26); rainSpeed = 0.75; windTilt = 0.25;
+                hudText.innerText = "3D Үзэгдэл: АЯНГА НИРГЭХ МӨЧ (Туйл)"; hudDot.style.background = "#f43f5e";
+                fireLightning();
+            } else if (stage === 4) {
+                targetColors.mountain.setHex(0x0ea5e9); targetColors.orb.setHex(0xfbbf24); targetColors.particle.setHex(0xfde68a);
+                targetCamPos.set(0, 16, 38); rainSpeed = 0.03; windTilt = 0;
+                hudText.innerText = "3D Үзэгдэл: Цэлмэг Тэнгэр ба Ухаарал (Тайлал)"; hudDot.style.background = "#fbbf24";
+            }
         }
 
-        await interaction.deferReply({ ephemeral: true });
+        function fireLightning() {
+            bolt1.material.opacity = 1; bolt2.material.opacity = 0.9;
+            flashOverlay.style.opacity = '1'; mainLight.intensity = 15;
+            shakeIntensity = 0.7; shockScale = 1; shockMat.opacity = 0.85;
+            setTimeout(() => { bolt1.material.opacity = 0; bolt2.material.opacity = 0; flashOverlay.style.opacity = '0'; mainLight.intensity = 3; }, 110);
+        }
 
-        const ticketChannel = await interaction.guild.channels.create({
-            name: `${selected.prefix}-${interaction.user.username}`,
-            type: ChannelType.GuildText,
-            parent: CONFIG.TICKET_CATEGORY_ID,
-            topic: interaction.user.id,
-            permissionOverwrites: [
-                { id: interaction.guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
-                { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles, PermissionsBitField.Flags.ReadMessageHistory] },
-                { id: CONFIG.ADMIN_ROLE_ID, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AttachFiles, PermissionsBitField.Flags.ReadMessageHistory] }
-            ]
+        setInterval(() => {
+            if (currentStage === 3) fireLightning();
+            else if (currentStage === 2 && Math.random() > 0.6) {
+                bolt1.material.opacity = 0.6; flashOverlay.style.opacity = '0.35';
+                setTimeout(() => { bolt1.material.opacity = 0; flashOverlay.style.opacity = '0'; }, 70);
+            }
+        }, 3500);
+
+        // Scroll Observer
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('scroll-progress').style.width = (scrollY / docHeight) * 100 + '%';
+
+            const triggerPoint = window.innerHeight * 0.55;
+            timelineItems.forEach(item => {
+                const rect = item.getBoundingClientRect();
+                if (rect.top < triggerPoint && rect.bottom > 100) {
+                    item.classList.add('active-stage');
+                    setStoryStage(parseInt(item.getAttribute('data-stage')));
+                } else {
+                    item.classList.remove('active-stage');
+                }
+            });
         });
 
-        const ticketEmbed = new EmbedBuilder()
-            .setColor('#00A8FF')
-            .setTitle(selected.title)
-            .setDescription(`Сайн уу ${interaction.user}! Админ орж иртэл мэдээллээ үлдээнэ үү:\n\n${selected.questions}`)
-            .addFields(
-                { name: '👤 Нээсэн гишүүн', value: `${interaction.user}`, inline: true },
-                { name: '🛡️ Хариуцсан Админ', value: '*Хүлээгдэж байна*', inline: true }
-            );
-
-        const buttons = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('claim_ticket').setLabel('Claim').setStyle(ButtonStyle.Success).setEmoji('🙋‍♂️'),
-            new ButtonBuilder().setCustomId('close_ticket').setLabel('Close').setStyle(ButtonStyle.Danger).setEmoji('🔒')
-        );
-
-        await ticketChannel.send({ content: `${interaction.user}`, embeds: [ticketEmbed], components: [buttons] }).catch(() => {});
-        await interaction.editReply({ content: `✅ Таны Ticket амжилттай үүслээ: ${ticketChannel}` });
-    }
-
-    // Claim Button
-    if (interaction.isButton() && interaction.customId === 'claim_ticket') {
-        if (!interaction.member.roles.cache.has(CONFIG.ADMIN_ROLE_ID) && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: '❌ Админ биш байна!', ephemeral: true });
-        }
-
-        const oldEmbed = interaction.message.embeds[0];
-        const updatedEmbed = EmbedBuilder.from(oldEmbed).setFields(
-            oldEmbed.fields[0],
-            { name: '🛡️ Хариуцсан Админ', value: `${interaction.user}`, inline: true }
-        );
-
-        const updatedButtons = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('claim_ticket').setLabel(`Claimed by ${interaction.user.username}`).setStyle(ButtonStyle.Secondary).setEmoji('✅').setDisabled(true),
-            new ButtonBuilder().setCustomId('close_ticket').setLabel('Close').setStyle(ButtonStyle.Danger).setEmoji('🔒')
-        );
-
-        await interaction.update({ embeds: [updatedEmbed], components: [updatedButtons] });
-        await interaction.channel.send(`✅ Энэ Ticket-ийг ${interaction.user} хариуцаж авлаа!`).catch(() => {});
-    }
-
-    // Close Button
-    if (interaction.isButton() && interaction.customId === 'close_ticket') {
-        await interaction.reply('🔒 Ticket хаагдаж байна...');
-
-        const messages = await interaction.channel.messages.fetch({ limit: 100 });
-        const transcriptText = messages
-            .reverse()
-            .map((m) => `[${new Date(m.createdTimestamp).toLocaleString()}] ${m.author.tag}: ${m.content || '[Файл]'}`)
-            .join('\n');
-
-        const attachment = new AttachmentBuilder(Buffer.from(transcriptText, 'utf-8'), {
-            name: `transcript-${interaction.channel.name}.txt`
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) - 0.5;
+            mouseY = (e.clientY / window.innerHeight) - 0.5;
         });
 
-        const ticketLog = interaction.guild.channels.cache.get(CONFIG.TICKET_LOG_ID);
-        if (ticketLog) {
-            const logEmbed = new EmbedBuilder()
-                .setColor('#E74C3C')
-                .setTitle('📁 Ticket Хаагдлаа')
-                .addFields(
-                    { name: 'Суваг', value: interaction.channel.name, inline: true },
-                    { name: 'Нээсэн', value: `<@${interaction.channel.topic}>`, inline: true }
-                );
-            await ticketLog.send({ embeds: [logEmbed], files: [attachment] }).catch(() => {});
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getElapsedTime();
+
+            terrainMat.color.lerp(targetColors.mountain, 0.04);
+            orbMat.color.lerp(targetColors.orb, 0.04);
+            particlesMat.color.lerp(targetColors.particle, 0.04);
+
+            mountainMesh.rotation.y = delta * 0.035;
+            orbMesh.rotation.y = delta * 0.25;
+            coreGroup.position.y = 8 + Math.sin(delta * 1.2) * 1;
+
+            if (shockMat.opacity > 0.01) {
+                shockScale += 0.7;
+                shockwave.scale.set(shockScale, shockScale, 1);
+                shockMat.opacity *= 0.92;
+            }
+
+            const positions = particlesGeo.attributes.position.array;
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] -= windTilt;
+                positions[i + 1] -= rainSpeed;
+                if (positions[i + 1] < -50) positions[i + 1] = 50;
+            }
+            particlesGeo.attributes.position.needsUpdate = true;
+
+            camera.position.x += (targetCamPos.x + mouseX * 6 - camera.position.x) * 0.05;
+            camera.position.y += (targetCamPos.y - mouseY * 4 - camera.position.y) * 0.05;
+            camera.position.z += (targetCamPos.z - camera.position.z) * 0.05;
+
+            if (shakeIntensity > 0.01) {
+                camera.position.x += (Math.random() - 0.5) * shakeIntensity;
+                camera.position.y += (Math.random() - 0.5) * shakeIntensity;
+                shakeIntensity *= 0.85;
+            }
+
+            camera.lookAt(0, 0, -5);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        /* ================= TEAM FILTER & QUIZ ================= */
+        function filterTeam(role, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.team-card').forEach(card => {
+                card.style.display = (role === 'all' || card.getAttribute('data-role') === role) ? 'block' : 'none';
+            });
         }
 
-        setTimeout(() => {
-            interaction.channel.delete().catch(() => {});
-        }, 5000);
-    }
-});
+        const quizData = [
+            { q: "1. 'Аянгат цагийн тууж' зохиолыг хэн бичсэн бэ?", options: ["Жамбын Пүрэв", "Чинагийн Галсан", "Сэнгийн Эрдэнэ", "Донровын Намдаг"], answer: 1 },
+            { q: "2. Зохиолын 'Аянгат цаг' хэмээх нэр юуг бэлгэддэг вэ?", options: ["Зөвхөн зуны аадар бороог", "Нийгэм болон хүний сэтгэлийн ширүүн сорилт, цэвэршилтийг", "Өвлийн зуд турхныг", "Ан ав хийх үеийг"], answer: 1 },
+            { q: "3. Ч.Галсан зохиолдоо ямар үндэстний ахуй соёл, байгаль эхтэй харилцах ухааныг дүрсэлдэг вэ?", options: ["Алтайн тува түмний", "Халх түмний", "Буриад түмний", "Дарьганга түмний"], answer: 0 }
+        ];
+
+        let currentQ = 0, score = 0;
+        function loadQuestion() {
+            const qObj = quizData[currentQ];
+            document.getElementById('q-text').innerText = qObj.q;
+            document.getElementById('q-progress').innerText = `${currentQ + 1} / ${quizData.length}`;
+            document.getElementById('next-btn').style.display = 'none';
+            const optionsBox = document.getElementById('q-options');
+            optionsBox.innerHTML = '';
+            qObj.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    const correctIdx = quizData[currentQ].answer;
+                    document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+                    if (idx === correctIdx) { btn.classList.add('correct'); score++; }
+                    else { btn.classList.add('wrong'); document.querySelectorAll('.quiz-option')[correctIdx].classList.add('correct'); }
+                    document.getElementById('next-btn').style.display = 'inline-block';
+                };
+                optionsBox.appendChild(btn);
+            });
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if (currentQ < quizData.length) loadQuestion();
+            else {
+                document.getElementById('quiz-box').innerHTML = `
+                    <div style="text-align: center; padding: 15px;">
+                        <h3 style="color: var(--primary); font-size: 1.6rem; margin-bottom: 12px;">Баяр хүргэе!</h3>
+                        <p style="font-size: 1.1rem; margin-bottom: 20px;">Та ${quizData.length} асуултаас <strong>${score}</strong> зөв хариуллаа.</p>
+                        <button class="btn" onclick="currentQ=0;score=0;document.getElementById('quiz-box').innerHTML='<div class=\\'quiz-question\\' id=\\'q-text\\'></div><div class=\\'quiz-options\\' id=\\'q-options\\'></div><div style=\\'display:flex;justify-content:space-between;align-items:center;\\'><span id=\\'q-progress\\' style=\\'color:var(--text-muted);font-size:0.85rem;\\'></span><button class=\\'btn\\' id=\\'next-btn\\' onclick=\\'nextQuestion()\\' style=\\'display:none;padding:9px 22px;\\'>Дараагийнх →</button></div>';loadQuestion();">Дахин эхлүүлэх</button>
+                    </div>`;
+            }
+        }
+        loadQuestion();
+    </script>
+</body>
+</html>
 
 client.login(CONFIG.TOKEN);
