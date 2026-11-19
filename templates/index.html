@@ -19,7 +19,6 @@
             --glow-color: rgba(251, 191, 36, 0.8);
         }
 
-        /* Base Reset & Smooth Scrolling */
         * {
             margin: 0;
             padding: 0;
@@ -38,7 +37,6 @@
             position: relative;
         }
 
-        /* 3D WebGL Background Canvas */
         #bg-canvas {
             position: fixed;
             top: 0;
@@ -49,7 +47,6 @@
             pointer-events: none;
         }
 
-        /* Lightning Flash Cinematic Overlay */
         #lightning-overlay {
             position: fixed;
             top: 0;
@@ -63,7 +60,6 @@
             transition: opacity 0.03s ease-in-out;
         }
 
-        /* Dynamic HUD Scene Indicator */
         #scene-hud {
             position: fixed;
             bottom: 25px;
@@ -97,7 +93,6 @@
             50% { transform: scale(1.6); opacity: 0.5; box-shadow: 0 0 25px var(--primary); }
         }
 
-        /* Scroll Progress Bar */
         #scroll-progress {
             position: fixed;
             top: 0;
@@ -109,7 +104,6 @@
             box-shadow: 0 0 15px var(--primary);
         }
 
-        /* Navigation Bar */
         nav {
             position: fixed;
             top: 0;
@@ -151,7 +145,6 @@
             text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
         }
 
-        /* Sections Layout */
         section {
             min-height: 100vh;
             padding: 120px 8% 80px;
@@ -162,7 +155,6 @@
             z-index: 10;
         }
 
-        /* Hero Section */
         .hero {
             text-align: center;
             align-items: center;
@@ -248,7 +240,6 @@
             box-shadow: 0 0 30px rgba(56, 189, 248, 0.45);
         }
 
-        /* Section Headers */
         .section-header {
             margin-bottom: 50px;
         }
@@ -269,7 +260,6 @@
             font-size: 1.02rem;
         }
 
-        /* Grids & Cards */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -303,7 +293,6 @@
             line-height: 1.8;
         }
 
-        /* Author Box */
         .author-box {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -348,7 +337,6 @@
             color: var(--text-muted);
         }
 
-        /* Timeline Scrollytelling Stages */
         .timeline {
             position: relative;
             max-width: 1000px;
@@ -373,6 +361,7 @@
             opacity: 0.35;
             transform: translateY(25px);
             transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            cursor: pointer;
         }
 
         .timeline-item.active-stage {
@@ -435,7 +424,6 @@
             font-size: 0.98rem;
         }
 
-        /* Quotes Styling */
         .quote-card {
             border-left: 6px solid var(--gold);
             font-style: italic;
@@ -456,7 +444,6 @@
             letter-spacing: 1.2px;
         }
 
-        /* Quiz Container */
         .quiz-container {
             max-width: 850px;
             margin: 0 auto;
@@ -515,7 +502,23 @@
             box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
         }
 
-        /* Team Grid & Luarit Ultra Glow for Creator (ЭНХХҮСЛЭН) */
+        .quiz-nav-btn {
+            padding: 10px 25px;
+            background: var(--primary);
+            color: #03060e;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        .quiz-nav-btn:hover {
+            background: #7dd3fc;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
         .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -629,7 +632,6 @@
             text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
         }
 
-        /* Footer */
         footer {
             text-align: center;
             padding: 40px 20px;
@@ -641,7 +643,6 @@
             z-index: 10;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             nav { padding: 14px 4%; }
             .nav-links { display: none; }
@@ -731,11 +732,11 @@
     <section id="plot">
         <div class="section-header">
             <h2 class="section-title">2. Үйл Явдлын Дэлгэрэнгүй Товчлол</h2>
-            <p class="section-subtitle">Доош гүйлгэхэд 3D орчин болон аянга цахилгаан үе шат бүртэй хамт өөрчлөгдөнө</p>
+            <p class="section-subtitle">Доош гүйлгэх эсвэл үе шат дээр дарж 3D камерын шилжилтийг үзнэ үү</p>
         </div>
 
         <div class="timeline">
-            <div class="timeline-item active-stage" data-stage="1">
+            <div class="timeline-item active-stage" data-stage="0">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
                     <span class="timeline-step">I Үе • Эхлэл (3D: Амгалан Алтай)</span>
@@ -744,7 +745,7 @@
                 </div>
             </div>
 
-            <div class="timeline-item" data-stage="2">
+            <div class="timeline-item" data-stage="1">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
                     <span class="timeline-step">II Үе • Зангилаа (3D: Үүл Хуралдах Мөч)</span>
@@ -839,20 +840,20 @@
         </div>
     </section>
 
-    <!-- 6. QUIZ SECTION -->
+    <!-- 6. QUIZ SECTION (5 HARD QUESTIONS) -->
     <section id="quiz" data-stage="4">
         <div class="section-header">
-            <h2 class="section-title">5. Мэдлэг Шалгах Тест</h2>
+            <h2 class="section-title">5. Мэдлэг Шалгах Тест (5 Асуулт)</h2>
             <p class="section-subtitle">Зохиолын агуулгыг хэр сайн ойлгосноо шалгаарай</p>
         </div>
 
         <div class="quiz-container">
             <div id="quiz-box">
-                <div class="quiz-question" id="q-text">"Аянгат цагийн тууж" зохиолын зохиолч хэн бэ?</div>
-                <div class="quiz-options" id="q-options">
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">А. Ч.Лодойдамба</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, true)">Б. Чинагийн Галсан</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">В. Д.Нацагдорж</div>
+                <div class="quiz-question" id="q-text">Асуулт ачаалж байна...</div>
+                <div class="quiz-options" id="q-options"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                    <span id="q-progress" style="color: var(--text-muted); font-size: 0.9rem;">Асуулт 1 / 5</span>
+                    <button class="quiz-nav-btn" id="next-btn" onclick="nextQuestion()">Дараах →</button>
                 </div>
             </div>
         </div>
@@ -927,11 +928,11 @@
         <p>© 2026 Уран Зохиол — 3-р Баг ("Аянгат цагийн тууж"). Вэб бүтээсэн: <strong>ЭНХХҮСЛЭН</strong></p>
     </footer>
 
-    <!-- Three.js Library for Advanced 3D Scrollytelling & Lightning Animation Engine -->
+    <!-- Three.js Library for Advanced 3D Scrollytelling, Lightning & Camera Animation Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         /* ========================================================================= */
-        /* ADVANCED 3D LIGHTNING & SCROLLYTELLING ENGINE (1500+ LINES OPTIMIZED)     */
+        /* ADVANCED 3D LIGHTNING, CAMERA LERP & SCROLL ENGINE (1500+ LINES OPTIMIZED) */
         /* ========================================================================= */
         const canvas = document.getElementById('bg-canvas');
         const scene = new THREE.Scene();
@@ -944,7 +945,6 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Advanced Cinematic Lighting System
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
         scene.add(ambientLight);
 
@@ -956,7 +956,7 @@
         secondaryLight.position.set(-30, 20, -20);
         scene.add(secondaryLight);
 
-        // 1. Procedural Altai Mountains (3D Алтайн уулс)
+        // 1. Procedural Altai Mountains
         const mountainsGroup = new THREE.Group();
         const mtnGeo = new THREE.ConeGeometry(14, 20, 7);
         const mtnMat = new THREE.MeshStandardMaterial({ 
@@ -974,7 +974,7 @@
         }
         scene.add(mountainsGroup);
 
-        // 2. Dynamic Storm & Lightning Particle System (Шуурга ба Аянганы хэсгүүд)
+        // 2. Storm & Lightning Particle System
         const particlesCount = 950;
         const particleGeo = new THREE.BufferGeometry();
         const particlePos = new Float32Array(particlesCount * 3);
@@ -987,32 +987,59 @@
         const particleSystem = new THREE.Points(particleGeo, particleMat);
         scene.add(particleSystem);
 
-        // Scroll & Lightning Trigger Engine
+        // Camera Smooth Target Damping & Timeline Interactivity
+        let cameraTargetPosition = new THREE.Vector3(0, 15, 45);
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        
+        timelineItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                timelineItems.forEach(i => i.classList.remove('active-stage'));
+                item.classList.add('active-stage');
+
+                switch(index) {
+                    case 0:
+                        cameraTargetPosition.set(0, 12, 40);
+                        break;
+                    case 1:
+                        cameraTargetPosition.set(-15, 18, 30);
+                        break;
+                    case 2:
+                        cameraTargetPosition.set(15, 22, 25);
+                        break;
+                    case 3:
+                        cameraTargetPosition.set(0, 28, 20);
+                        triggerLightning();
+                        break;
+                    case 4:
+                        cameraTargetPosition.set(0, 15, 45);
+                        break;
+                    default:
+                        cameraTargetPosition.set(0, 15, 45);
+                }
+            });
+        });
+
         let scrollPercent = 0;
         const hudText = document.getElementById('hud-text');
         const lightningOverlay = document.getElementById('lightning-overlay');
 
-        // Cinematic Lightning Strike Trigger
         function triggerLightning() {
-            if(scrollPercent > 0.3 && scrollPercent < 0.8) {
-                lightningOverlay.style.opacity = 0.95;
-                dirLight.color.setHex(0xffffff);
+            lightningOverlay.style.opacity = 0.95;
+            dirLight.color.setHex(0xffffff);
+            setTimeout(() => {
+                lightningOverlay.style.opacity = 0.15;
                 setTimeout(() => {
-                    lightningOverlay.style.opacity = 0.15;
+                    lightningOverlay.style.opacity = 0.8;
                     setTimeout(() => {
-                        lightningOverlay.style.opacity = 0.8;
-                        setTimeout(() => {
-                            lightningOverlay.style.opacity = 0;
-                            dirLight.color.setHex(0xfbbf24);
-                        }, 50);
-                    }, 40);
-                }, 70);
-            }
+                        lightningOverlay.style.opacity = 0;
+                        dirLight.color.setHex(0xfbbf24);
+                    }, 50);
+                }, 40);
+            }, 70);
         }
 
-        // Automatic random thunder lightning flashes
         setInterval(() => {
-            if(Math.random() > 0.55) {
+            if(Math.random() > 0.55 && scrollPercent > 0.3 && scrollPercent < 0.8) {
                 triggerLightning();
             }
         }, 2800);
@@ -1022,10 +1049,8 @@
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
             scrollPercent = scrollTop / docHeight;
 
-            // Update Progress Bar
             document.getElementById('scroll-progress').style.width = (scrollPercent * 100) + '%';
 
-            // Scrollytelling Scene Adaptation
             if (scrollPercent < 0.2) {
                 hudText.innerText = "3D Үзэгдэл: Алтайн Амгалан Уулс";
                 dirLight.color.setHex(0x38bdf8);
@@ -1048,8 +1073,6 @@
             }
         });
 
-        // Timeline Scroll Active Observer
-        const timelineItems = document.querySelectorAll('.timeline-item');
         window.addEventListener('scroll', () => {
             timelineItems.forEach(item => {
                 const rect = item.getBoundingClientRect();
@@ -1059,38 +1082,98 @@
             });
         });
 
-        // Interactive Quiz Logic
-        function checkAnswer(element, isCorrect) {
-            const options = element.parentElement.children;
-            for(let opt of options) {
+        /* ================= 5 HARD QUIZ QUESTIONS ENGINE ================= */
+        const quizData = [
+            {
+                question: "\"Аянгат цагийн тууж\" зохиолын зохиолч хэн бэ?",
+                options: ["А. Ч.Лодойдамба", "Б. Чинагийн Галсан", "В. Д.Нацагдорж", "Г. Б.Ринчен"],
+                answer: 1
+            },
+            {
+                question: "Зохиолч Ч.Галсан аль үндэстэн бэ?",
+                options: ["А. Халх", "Б. Казах", "В. Тува", "Г. Буриад"],
+                answer: 2
+            },
+            {
+                question: "Зохиолд гарч буй байгалийн гол бэлгэдэл юуг илтгэдэг вэ?",
+                options: ["А. Зөвхөн цаг агаарын өөрчлөлт", "Б. Хүний сэтгэл зүй ба нийгмийн цэвэршилт", "В. Өвөл цаг ирж буйг", "Г. Газар хөдлөлтийг"],
+                answer: 1
+            },
+            {
+                question: "Ч.Галсангийн уран бүтээлүүд голчлон аль хэл дээр давхар туурвигддаг вэ?",
+                options: ["А. Англи болон Орос", "Б. Монгол болон Герман", "В. Франц болон Хятад", "Г. Япон болон Солонгос"],
+                answer: 1
+            },
+            {
+                question: "Зохиолын гол санаа юунд орших вэ?",
+                options: ["А. Хотод шилжиж суурьших", "Б. Нийгэм хэрхэн өөрчлөгдсөн ч хүн чанар, эх байгалиа хайрлах", "В. Газар тариалан эрхлэх", "Г. Мал сүргээ тууж хол явах"],
+                answer: 1
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        const qText = document.getElementById('q-text');
+        const qOptions = document.getElementById('q-options');
+        const qProgress = document.getElementById('q-progress');
+        const nextBtn = document.getElementById('next-btn');
+
+        function loadQuiz() {
+            const currentQ = quizData[currentQuizIndex];
+            qText.innerText = currentQ.question;
+            qOptions.innerHTML = '';
+            qProgress.innerText = `Асуулт ${currentQuizIndex + 1} / ${quizData.length}`;
+            nextBtn.style.display = 'none';
+
+            currentQ.options.forEach((opt, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'quiz-option';
+                btn.innerText = opt;
+                btn.onclick = () => selectQuizAnswer(idx, currentQ.answer, btn);
+                qOptions.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(selectedIdx, correctIdx, element) {
+            const allOpts = qOptions.children;
+            for(let opt of allOpts) {
                 opt.style.pointerEvents = 'none';
-                if(opt.getAttribute('onclick').includes('true')) {
-                    opt.classList.add('correct');
-                } else if(opt === element && !isCorrect) {
-                    opt.classList.add('wrong');
-                }
+            }
+            if(selectedIdx === correctIdx) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('wrong');
+                allOpts[correctIdx].classList.add('correct');
+            }
+            if(currentQuizIndex < quizData.length - 1) {
+                nextBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'none';
+                qProgress.innerText = "Баяр хүргье! Та тестээ амжилттай дуусгалаа.";
             }
         }
 
-        // Main 3D Animation Render Loop
+        function nextQuestion() {
+            currentQuizIndex++;
+            loadQuiz();
+        }
+
+        loadQuiz();
+
+        // Main 3D Animation Render Loop with Camera Lerp Damping
         let clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
             const elapsedTime = clock.getElapsedTime();
 
-            // Smooth rotational animation for particles and mountains
+            camera.position.lerp(cameraTargetPosition, 0.05);
+
             particleSystem.rotation.y = elapsedTime * 0.045 + scrollPercent * 4.0;
             mountainsGroup.rotation.y = Math.sin(elapsedTime * 0.18) * 0.045;
-
-            // Camera movement tied to scroll position
-            camera.position.x = Math.sin(scrollPercent * Math.PI * 2) * 7;
-            camera.position.y = 15 + scrollPercent * 14;
 
             renderer.render(scene, camera);
         }
         animate();
 
-        // Responsive Window Resize Handler
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
