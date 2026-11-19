@@ -519,83 +519,6 @@
             box-shadow: 0 0 15px var(--primary);
         }
 
-        .feedback-container {
-            max-width: 850px;
-            margin: 0 auto;
-            width: 100%;
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            border-radius: 22px;
-            padding: 40px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
-        }
-
-        .star-rating {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-            cursor: pointer;
-        }
-
-        .star {
-            color: #475569;
-            transition: color 0.2s;
-        }
-
-        .star.active {
-            color: var(--gold);
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
-        }
-
-        .feedback-form input, .feedback-form textarea {
-            width: 100%;
-            padding: 14px 18px;
-            margin-bottom: 15px;
-            background: rgba(3, 6, 14, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.95rem;
-        }
-
-        .feedback-form input:focus, .feedback-form textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
-        }
-
-        .reviews-list {
-            margin-top: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .review-item {
-            background: rgba(3, 6, 14, 0.6);
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            border-radius: 12px;
-            padding: 15px 20px;
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .review-author {
-            color: var(--primary);
-            font-weight: 700;
-        }
-
         .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -751,7 +674,6 @@
             <a href="#characters">Дүрүүд</a>
             <a href="#analysis">Задлал</a>
             <a href="#quiz">Тест</a>
-            <a href="#feedback">Үнэлгээ</a>
             <a href="#team">Баг</a>
         </div>
     </nav>
@@ -918,11 +840,11 @@
         </div>
     </section>
 
-    <!-- 6. QUIZ SECTION (5 HARD QUESTIONS) -->
+    <!-- 6. QUIZ SECTION (5 QUESTIONS) -->
     <section id="quiz" data-stage="4">
         <div class="section-header">
-            <h2 class="section-title">5. Мэдлэг Шалгах Тест (Хатуу түвшний 5 асуулт)</h2>
-            <p class="section-subtitle">Зохиолын гүн агуулга болон утга санааг хэр сайн ойлгосноо шалгаарай</p>
+            <h2 class="section-title">5. Мэдлэг Шалгах Тест (5 Асуулт)</h2>
+            <p class="section-subtitle">Зохиолын агуулгыг хэр сайн ойлгосноо шалгаарай</p>
         </div>
 
         <div class="quiz-container">
@@ -937,42 +859,10 @@
         </div>
     </section>
 
-    <!-- 7. FEEDBACK & RATING SECTION -->
-    <section id="feedback" data-stage="4">
-        <div class="section-header">
-            <h2 class="section-title">6. Үнэлгээ & Сэтгэгдэл</h2>
-            <p class="section-subtitle">Манай багийн вэб сайтад үнэлгээ өгч, сэтгэгдлээ хуваалцаарай</p>
-        </div>
-
-        <div class="feedback-container">
-            <div class="star-rating" id="star-container">
-                <span class="star" data-value="1">★</span>
-                <span class="star" data-value="2">★</span>
-                <span class="star" data-value="3">★</span>
-                <span class="star" data-value="4">★</span>
-                <span class="star" data-value="5">★</span>
-            </div>
-            <div class="feedback-form">
-                <input type="text" id="reviewer-name" placeholder="Таны нэр...">
-                <textarea id="reviewer-comment" rows="4" placeholder="Сэтгэгдлээ энд бичнэ үү..."></textarea>
-                <button class="btn" onclick="submitReview()" style="width: 100%;">Сэтгэгдэл илгээх</button>
-            </div>
-            <div class="reviews-list" id="reviews-list">
-                <div class="review-item">
-                    <div class="review-header">
-                        <span class="review-author">Билгүүн (Зочин)</span>
-                        <span>★★★★★</span>
-                    </div>
-                    <p style="font-size: 0.9rem; color: #cbd5e1;">Маш гоё 3D эффекттэй, сонирхолтой вэб болжээ. Амжилт хүсье!</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 8. TEAM SECTION -->
+    <!-- 7. TEAM SECTION -->
     <section id="team" data-stage="4">
         <div class="section-header">
-            <h2 class="section-title">7. 3-р Багийн Бүрэлдэхүүн (9 Гишүүн)</h2>
+            <h2 class="section-title">6. 3-р Багийн Бүрэлдэхүүн (9 Гишүүн)</h2>
             <p class="section-subtitle">Төслийг хамтран бүтээсэн багийн гишүүд болон тэдний гүйцэтгэсэн үүрэг</p>
         </div>
 
@@ -1015,7 +905,7 @@
 
             <div class="team-card">
                 <span class="role-badge">Дүрийн Шинжээч</span>
-                ### СҮЛДБАЯР
+                <h3>СҮЛДБАЯР</h3>
                 <p>Гол болон туслах дүрүүдийн зан төлөв, сэтгэл зүйн онцлогийг задлан шинжилсэн.</p>
             </div>
 
@@ -1173,10 +1063,10 @@
             });
         });
 
-        /* ================= 5 HARD QUIZ QUESTIONS ENGINE ================= */
+        /* ================= 5 QUIZ QUESTIONS ENGINE ================= */
         const quizData = [
             {
-                question: "1. Зохиолч Ч.Галсангийн уран бүтээлийн гол философи болох байгаль ба хүний шүтэлцээг тэрээр юугаар дамжуулан илүүтэй илэрхийлдэг вэ?",
+                question: "1. Зохиолч Ч.Галсангийн уран бүтээлийн гол философи болох байгаль ба хүний шүтэлцэлийг тэрээр юугаар дамжуулан илүүтэй илэрхийлдэг вэ?",
                 options: [
                     "А. Хот суурин газрын барилгажсан орчин", 
                     "Б. Алтайн сүрлэг уулс, цаг агаарын эрс тэс үзэгдэл ба дотоод сэтгэл зүйн ижилсэл", 
@@ -1264,7 +1154,7 @@
                 nextBtn.style.display = 'block';
             } else {
                 nextBtn.style.display = 'none';
-                qProgress.innerText = "Баяр хүргье! Та хүндрүүлсэн тестээ амжилттай дуусгалаа.";
+                qProgress.innerText = "Баяр хүргье! Та тестээ амжилттай дуусгалаа.";
             }
         }
 
@@ -1274,52 +1164,6 @@
         }
 
         loadQuiz();
-
-        let selectedRating = 5;
-        const stars = document.querySelectorAll('.star');
-        
-        stars.forEach((star, idx) => {
-            star.addEventListener('click', () => {
-                selectedRating = idx + 1;
-                stars.forEach((s, sIdx) => {
-                    if(sIdx < selectedRating) {
-                        s.classList.add('active');
-                    } else {
-                        s.classList.remove('active');
-                    }
-                });
-            });
-        });
-
-        stars.forEach(s => s.classList.add('active'));
-
-        function submitReview() {
-            const nameInput = document.getElementById('reviewer-name');
-            const commentInput = document.getElementById('reviewer-comment');
-            const reviewsList = document.getElementById('reviews-list');
-
-            if(!nameInput.value.trim() || !commentInput.value.trim()) {
-                alert('Нэр болон сэтгэгдлээ бичнэ үү!');
-                return;
-            }
-
-            const starString = '★'.repeat(selectedRating) + '☆'.repeat(5 - selectedRating);
-
-            const reviewDiv = document.createElement('div');
-            reviewDiv.className = 'review-item';
-            reviewDiv.innerHTML = `
-                <div class="review-header">
-                    <span class="review-author">${nameInput.value}</span>
-                    <span style="color: var(--gold);">${starString}</span>
-                </div>
-                <p style="font-size: 0.9rem; color: #cbd5e1;">${commentInput.value}</p>
-            `;
-
-            reviewsList.prepend(reviewDiv);
-            nameInput.value = '';
-            commentInput.value = '';
-            alert('Таны сэтгэгдэл амжилттай нэмэгдлээ!');
-        }
 
         let clock = new THREE.Clock();
         function animate() {
