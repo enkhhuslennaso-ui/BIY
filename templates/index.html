@@ -519,6 +519,83 @@
             box-shadow: 0 0 15px var(--primary);
         }
 
+        .feedback-container {
+            max-width: 850px;
+            margin: 0 auto;
+            width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 22px;
+            padding: 40px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        .star {
+            color: #475569;
+            transition: color 0.2s;
+        }
+
+        .star.active {
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+        }
+
+        .feedback-form input, .feedback-form textarea {
+            width: 100%;
+            padding: 14px 18px;
+            margin-bottom: 15px;
+            background: rgba(3, 6, 14, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .feedback-form input:focus, .feedback-form textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .reviews-list {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .review-item {
+            background: rgba(3, 6, 14, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 12px;
+            padding: 15px 20px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .review-author {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
         .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -674,6 +751,7 @@
             <a href="#characters">Дүрүүд</a>
             <a href="#analysis">Задлал</a>
             <a href="#quiz">Тест</a>
+            <a href="#feedback">Үнэлгээ</a>
             <a href="#team">Баг</a>
         </div>
     </nav>
@@ -728,7 +806,7 @@
         </div>
     </section>
 
-    <!-- 3. PLOT SUMMARY (3D SCROLLYTELLING STAGES) -->
+    <!-- 3. PLOT SUMMARY -->
     <section id="plot">
         <div class="section-header">
             <h2 class="section-title">2. Үйл Явдлын Дэлгэрэнгүй Товчлол</h2>
@@ -843,8 +921,8 @@
     <!-- 6. QUIZ SECTION (5 HARD QUESTIONS) -->
     <section id="quiz" data-stage="4">
         <div class="section-header">
-            <h2 class="section-title">5. Мэдлэг Шалгах Тест (5 Асуулт)</h2>
-            <p class="section-subtitle">Зохиолын агуулгыг хэр сайн ойлгосноо шалгаарай</p>
+            <h2 class="section-title">5. Мэдлэг Шалгах Тест (Хатуу түвшний 5 асуулт)</h2>
+            <p class="section-subtitle">Зохиолын гүн агуулга болон утга санааг хэр сайн ойлгосноо шалгаарай</p>
         </div>
 
         <div class="quiz-container">
@@ -859,17 +937,48 @@
         </div>
     </section>
 
-    <!-- 7. TEAM SECTION (9 MEMBERS WITH ENHHKHUSLEN ULTIMATE GLOW) -->
+    <!-- 7. FEEDBACK & RATING SECTION -->
+    <section id="feedback" data-stage="4">
+        <div class="section-header">
+            <h2 class="section-title">6. Үнэлгээ & Сэтгэгдэл</h2>
+            <p class="section-subtitle">Манай багийн вэб сайтад үнэлгээ өгч, сэтгэгдлээ хуваалцаарай</p>
+        </div>
+
+        <div class="feedback-container">
+            <div class="star-rating" id="star-container">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <div class="feedback-form">
+                <input type="text" id="reviewer-name" placeholder="Таны нэр...">
+                <textarea id="reviewer-comment" rows="4" placeholder="Сэтгэгдлээ энд бичнэ үү..."></textarea>
+                <button class="btn" onclick="submitReview()" style="width: 100%;">Сэтгэгдэл илгээх</button>
+            </div>
+            <div class="reviews-list" id="reviews-list">
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="review-author">Билгүүн (Зочин)</span>
+                        <span>★★★★★</span>
+                    </div>
+                    <p style="font-size: 0.9rem; color: #cbd5e1;">Маш гоё 3D эффекттэй, сонирхолтой вэб болжээ. Амжилт хүсье!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. TEAM SECTION -->
     <section id="team" data-stage="4">
         <div class="section-header">
-            <h2 class="section-title">6. 3-р Багийн Бүрэлдэхүүн (9 Гишүүн)</h2>
+            <h2 class="section-title">7. 3-р Багийн Бүрэлдэхүүн (9 Гишүүн)</h2>
             <p class="section-subtitle">Төслийг хамтран бүтээсэн багийн гишүүд болон тэдний гүйцэтгэсэн үүрэг</p>
         </div>
 
         <div class="team-grid">
-            <!-- Энххүслэн - Ultimate Creator Card with Ultra Glow Effect -->
             <div class="team-card creator">
-                <span class="role-badge">★ Үндсэн Хөгжүүлэгч & Дизайнер</span>
+                <span class="role-badge">Вэб сайт Дизайнер & Хөгжүүлсэн</span>
                 <h3>ЭНХХҮСЛЭН</h3>
                 <p>Python Flask сервер, Render 24/7 тохиргоо болон 3D Scrollytelling Lightning Luarit Glow вэб системийг гардан бүтээж удирдсан.</p>
             </div>
@@ -906,7 +1015,7 @@
 
             <div class="team-card">
                 <span class="role-badge">Дүрийн Шинжээч</span>
-                <h3>СҮЛДБАЯР</h3>
+                ### СҮЛДБАЯР
                 <p>Гол болон туслах дүрүүдийн зан төлөв, сэтгэл зүйн онцлогийг задлан шинжилсэн.</p>
             </div>
 
@@ -928,12 +1037,9 @@
         <p>© 2026 Уран Зохиол — 3-р Баг ("Аянгат цагийн тууж"). Вэб бүтээсэн: <strong>ЭНХХҮСЛЭН</strong></p>
     </footer>
 
-    <!-- Three.js Library for Advanced 3D Scrollytelling, Lightning & Camera Animation Engine -->
+    <!-- Three.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        /* ========================================================================= */
-        /* ADVANCED 3D LIGHTNING, CAMERA LERP & SCROLL ENGINE (1500+ LINES OPTIMIZED) */
-        /* ========================================================================= */
         const canvas = document.getElementById('bg-canvas');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x03060e, 0.012);
@@ -956,7 +1062,6 @@
         secondaryLight.position.set(-30, 20, -20);
         scene.add(secondaryLight);
 
-        // 1. Procedural Altai Mountains
         const mountainsGroup = new THREE.Group();
         const mtnGeo = new THREE.ConeGeometry(14, 20, 7);
         const mtnMat = new THREE.MeshStandardMaterial({ 
@@ -974,7 +1079,6 @@
         }
         scene.add(mountainsGroup);
 
-        // 2. Storm & Lightning Particle System
         const particlesCount = 950;
         const particleGeo = new THREE.BufferGeometry();
         const particlePos = new Float32Array(particlesCount * 3);
@@ -987,7 +1091,6 @@
         const particleSystem = new THREE.Points(particleGeo, particleMat);
         scene.add(particleSystem);
 
-        // Camera Smooth Target Damping & Timeline Interactivity
         let cameraTargetPosition = new THREE.Vector3(0, 15, 45);
         const timelineItems = document.querySelectorAll('.timeline-item');
         
@@ -997,24 +1100,12 @@
                 item.classList.add('active-stage');
 
                 switch(index) {
-                    case 0:
-                        cameraTargetPosition.set(0, 12, 40);
-                        break;
-                    case 1:
-                        cameraTargetPosition.set(-15, 18, 30);
-                        break;
-                    case 2:
-                        cameraTargetPosition.set(15, 22, 25);
-                        break;
-                    case 3:
-                        cameraTargetPosition.set(0, 28, 20);
-                        triggerLightning();
-                        break;
-                    case 4:
-                        cameraTargetPosition.set(0, 15, 45);
-                        break;
-                    default:
-                        cameraTargetPosition.set(0, 15, 45);
+                    case 0: cameraTargetPosition.set(0, 12, 40); break;
+                    case 1: cameraTargetPosition.set(-15, 18, 30); break;
+                    case 2: cameraTargetPosition.set(15, 22, 25); break;
+                    case 3: cameraTargetPosition.set(0, 28, 20); triggerLightning(); break;
+                    case 4: cameraTargetPosition.set(0, 15, 45); break;
+                    default: cameraTargetPosition.set(0, 15, 45);
                 }
             });
         });
@@ -1085,28 +1176,53 @@
         /* ================= 5 HARD QUIZ QUESTIONS ENGINE ================= */
         const quizData = [
             {
-                question: "\"Аянгат цагийн тууж\" зохиолын зохиолч хэн бэ?",
-                options: ["А. Ч.Лодойдамба", "Б. Чинагийн Галсан", "В. Д.Нацагдорж", "Г. Б.Ринчен"],
+                question: "1. Зохиолч Ч.Галсангийн уран бүтээлийн гол философи болох байгаль ба хүний шүтэлцээг тэрээр юугаар дамжуулан илүүтэй илэрхийлдэг вэ?",
+                options: [
+                    "А. Хот суурин газрын барилгажсан орчин", 
+                    "Б. Алтайн сүрлэг уулс, цаг агаарын эрс тэс үзэгдэл ба дотоод сэтгэл зүйн ижилсэл", 
+                    "В. Нийгмийн анги давхаргын зөрчил", 
+                    "Г. Гадаад орнуудын түүхэн үйл явдал"
+                ],
                 answer: 1
             },
             {
-                question: "Зохиолч Ч.Галсан аль үндэстэн бэ?",
-                options: ["А. Халх", "Б. Казах", "В. Тува", "Г. Буриад"],
+                question: "2. \"Аянгат цагийн тууж\" зохиолд гарч буй \"Аянгат цаг\" гэсэн ойлголт нь юуг гүн ухааны хувьд бэлгэддэг вэ?",
+                options: [
+                    "А. Зөвхөн зуны улирлын аадар бороог", 
+                    "Б. Хувь хүний амьдралд тохиолдох гэнэтийн азгүй тохиолдлыг", 
+                    "В. Нийгэм болон хүний сэтгэлийг сорьж, хирийг нь угааж цэвэршүүлэх шилжилтийн үеийг", 
+                    "Г. Мал сүрэгт тохиолдох байгалийн гамшгийг"
+                ],
                 answer: 2
             },
             {
-                question: "Зохиолд гарч буй байгалийн гол бэлгэдэл юуг илтгэдэг вэ?",
-                options: ["А. Зөвхөн цаг агаарын өөрчлөлт", "Б. Хүний сэтгэл зүй ба нийгмийн цэвэршилт", "В. Өвөл цаг ирж буйг", "Г. Газар хөдлөлтийг"],
+                question: "3. Зохиолч Ч.Галсан монгол утга зохиолыг дэлхийн тавцанд гаргахад ямар хоёр хэлээр голчлон уран бүтээлээ туурвиснаараа алдартай вэ?",
+                options: [
+                    "А. Монгол болон Англи", 
+                    "Б. Монгол болон Герман", 
+                    "В. Орос болон Франц", 
+                    "Г. Тува болон Орос"
+                ],
                 answer: 1
             },
             {
-                question: "Ч.Галсангийн уран бүтээлүүд голчлон аль хэл дээр давхар туурвигддаг вэ?",
-                options: ["А. Англи болон Орос", "Б. Монгол болон Герман", "В. Франц болон Хятад", "Г. Япон болон Солонгос"],
+                question: "4. Зохиолын үйл явдлын өрнөл хэсэгт шинэ цагийн салхи буюу нийгмийн өөрчлөлт орж ирснээр гол зөрчил юун дээр төвлөрдөг вэ?",
+                options: [
+                    "А. Эдийн засгийн хямрал болон мөнгөний хомсдол", 
+                    "Б. Уламжлалт өв соёл, ёс заншлаа хадгалах гэсэн ахмад үе болон шинэ цагийг дагах залуу үеийн зөрчил", 
+                    "В. Газар нутгийн маргаан", 
+                    "Г. Технологийн дэвшил ба интернэтийн нэвтрэлт"
+                ],
                 answer: 1
             },
             {
-                question: "Зохиолын гол санаа юунд орших вэ?",
-                options: ["А. Хотод шилжиж суурьших", "Б. Нийгэм хэрхэн өөрчлөгдсөн ч хүн чанар, эх байгалиа хайрлах", "В. Газар тариалан эрхлэх", "Г. Мал сүргээ тууж хол явах"],
+                question: "5. Шуурганы дараах цэлмэг тэнгэр ба ухаарал хэсэг нь зохиолын төгсгөлд ямар утгыг хамгийн тод илэрхийлдэг вэ?",
+                options: [
+                    "А. Бүх зүйл хуучин хэвэндээ буцаж орсныг", 
+                    "Б. Байгаль болон хүний сэтгэл сорилтыг даван туулж, илүү ухаажин ариусч буйг", 
+                    "В. Малчид өвөлжөө рүүгээ нүүж буйг", 
+                    "Г. Цаг агаар сайжирснаар ажил хөнгөрснийг"
+                ],
                 answer: 1
             }
         ];
@@ -1148,7 +1264,7 @@
                 nextBtn.style.display = 'block';
             } else {
                 nextBtn.style.display = 'none';
-                qProgress.innerText = "Баяр хүргье! Та тестээ амжилттай дуусгалаа.";
+                qProgress.innerText = "Баяр хүргье! Та хүндрүүлсэн тестээ амжилттай дуусгалаа.";
             }
         }
 
@@ -1159,7 +1275,52 @@
 
         loadQuiz();
 
-        // Main 3D Animation Render Loop with Camera Lerp Damping
+        let selectedRating = 5;
+        const stars = document.querySelectorAll('.star');
+        
+        stars.forEach((star, idx) => {
+            star.addEventListener('click', () => {
+                selectedRating = idx + 1;
+                stars.forEach((s, sIdx) => {
+                    if(sIdx < selectedRating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        stars.forEach(s => s.classList.add('active'));
+
+        function submitReview() {
+            const nameInput = document.getElementById('reviewer-name');
+            const commentInput = document.getElementById('reviewer-comment');
+            const reviewsList = document.getElementById('reviews-list');
+
+            if(!nameInput.value.trim() || !commentInput.value.trim()) {
+                alert('Нэр болон сэтгэгдлээ бичнэ үү!');
+                return;
+            }
+
+            const starString = '★'.repeat(selectedRating) + '☆'.repeat(5 - selectedRating);
+
+            const reviewDiv = document.createElement('div');
+            reviewDiv.className = 'review-item';
+            reviewDiv.innerHTML = `
+                <div class="review-header">
+                    <span class="review-author">${nameInput.value}</span>
+                    <span style="color: var(--gold);">${starString}</span>
+                </div>
+                <p style="font-size: 0.9rem; color: #cbd5e1;">${commentInput.value}</p>
+            `;
+
+            reviewsList.prepend(reviewDiv);
+            nameInput.value = '';
+            commentInput.value = '';
+            alert('Таны сэтгэгдэл амжилттай нэмэгдлээ!');
+        }
+
         let clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
